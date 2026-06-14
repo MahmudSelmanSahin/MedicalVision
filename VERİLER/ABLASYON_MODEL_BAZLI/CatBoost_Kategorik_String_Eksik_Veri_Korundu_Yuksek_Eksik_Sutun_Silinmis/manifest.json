@@ -1,0 +1,243 @@
+{
+  "model": "CATBOOST",
+  "scenario": "catboost_drop_high_missing",
+  "folder_structure": "ABLASYON_CALISMASI/MODELLER/{MODEL}/{ENCODING}/{SCALER}/{EKSIK_VERI}",
+  "input_dir": "/Users/mahmudselmansahin/Teknofest/VERİLER/ORİJİNAL",
+  "output_dir": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/_selman_extended_csvs/MODELLER/CATBOOST/Kategorik_String/Eksik_Veri_Korundu/Yuksek_Eksik_Sutun_Silinmis",
+  "panels": {
+    "MASTER": {
+      "scenario": {
+        "model": "catboost",
+        "name": "catboost_drop_high_missing",
+        "encoding": "none",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": true,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": false
+      },
+      "input_shape": [
+        2931,
+        353
+      ],
+      "input_missing_values": 568464,
+      "dropped_columns": [
+        "AL_27",
+        "AL_28",
+        "AL_29",
+        "AL_30",
+        "AL_31",
+        "AL_32",
+        "AL_33",
+        "AL_34",
+        "AL_35",
+        "AL_36",
+        "AL_37",
+        "AL_38",
+        "CAT_6"
+      ],
+      "encoding": {
+        "method": "none",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "AA_1",
+          "AA_2"
+        ]
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        2931,
+        340
+      ],
+      "output_missing_values": 533452,
+      "label_counts": {
+        "1": 2149,
+        "0": 782
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/_selman_extended_csvs/MODELLER/CATBOOST/Kategorik_String/Eksik_Veri_Korundu/Yuksek_Eksik_Sutun_Silinmis/MASTER_catboost_drop_high_missing.csv"
+    },
+    "KANSER": {
+      "scenario": {
+        "model": "catboost",
+        "name": "catboost_drop_high_missing",
+        "encoding": "none",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": true,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": false
+      },
+      "input_shape": [
+        388,
+        353
+      ],
+      "input_missing_values": 78309,
+      "dropped_columns": [
+        "CAT_6"
+      ],
+      "encoding": {
+        "method": "none",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "AA_1",
+          "AA_2"
+        ]
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        388,
+        352
+      ],
+      "output_missing_values": 77925,
+      "label_counts": {
+        "1": 268,
+        "0": 120
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/_selman_extended_csvs/MODELLER/CATBOOST/Kategorik_String/Eksik_Veri_Korundu/Yuksek_Eksik_Sutun_Silinmis/KANSER_catboost_drop_high_missing.csv"
+    },
+    "PAH": {
+      "scenario": {
+        "model": "catboost",
+        "name": "catboost_drop_high_missing",
+        "encoding": "none",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": true,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": false
+      },
+      "input_shape": [
+        372,
+        353
+      ],
+      "input_missing_values": 71301,
+      "dropped_columns": [
+        "AL_1",
+        "AL_2",
+        "AL_3",
+        "AL_4",
+        "AL_5",
+        "AL_6",
+        "AL_27",
+        "AL_28",
+        "AL_29",
+        "AL_30",
+        "AL_31",
+        "AL_32",
+        "AL_33",
+        "AL_34",
+        "AL_35",
+        "AL_36",
+        "AL_37",
+        "AL_38",
+        "CAT_6"
+      ],
+      "encoding": {
+        "method": "none",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "AA_1",
+          "AA_2"
+        ]
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        372,
+        334
+      ],
+      "output_missing_values": 64485,
+      "label_counts": {
+        "1": 310,
+        "0": 62
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/_selman_extended_csvs/MODELLER/CATBOOST/Kategorik_String/Eksik_Veri_Korundu/Yuksek_Eksik_Sutun_Silinmis/PAH_catboost_drop_high_missing.csv"
+    },
+    "CFTR": {
+      "scenario": {
+        "model": "catboost",
+        "name": "catboost_drop_high_missing",
+        "encoding": "none",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": true,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": false
+      },
+      "input_shape": [
+        111,
+        353
+      ],
+      "input_missing_values": 11864,
+      "dropped_columns": [
+        "CAT_6"
+      ],
+      "encoding": {
+        "method": "none",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "AA_1",
+          "AA_2"
+        ]
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        111,
+        352
+      ],
+      "output_missing_values": 11755,
+      "label_counts": {
+        "1": 90,
+        "0": 21
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/_selman_extended_csvs/MODELLER/CATBOOST/Kategorik_String/Eksik_Veri_Korundu/Yuksek_Eksik_Sutun_Silinmis/CFTR_catboost_drop_high_missing.csv"
+    }
+  }
+}

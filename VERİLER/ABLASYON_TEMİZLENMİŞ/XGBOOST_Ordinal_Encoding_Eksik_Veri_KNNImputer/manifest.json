@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "xgboost",
+    "name": "xgboost_knn",
+    "encoding": "ordinal",
+    "imputer": "knn",
+    "scaler": "none"
+  }
+}

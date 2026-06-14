@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "adaboost",
+    "name": "adaboost_onehot_al_zero",
+    "encoding": "onehot",
+    "imputer": "al_zero",
+    "scaler": "none"
+  }
+}

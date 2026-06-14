@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "svm",
+    "name": "svm_robust_median",
+    "encoding": "onehot",
+    "imputer": "median",
+    "scaler": "robust"
+  }
+}

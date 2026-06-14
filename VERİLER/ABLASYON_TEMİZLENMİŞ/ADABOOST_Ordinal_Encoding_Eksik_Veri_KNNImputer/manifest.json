@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "adaboost",
+    "name": "adaboost_ordinal_knn",
+    "encoding": "ordinal",
+    "imputer": "knn",
+    "scaler": "none"
+  }
+}

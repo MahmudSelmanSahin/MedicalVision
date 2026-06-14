@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "catboost",
+    "name": "catboost_knn",
+    "encoding": "none",
+    "imputer": "knn",
+    "scaler": "none"
+  }
+}

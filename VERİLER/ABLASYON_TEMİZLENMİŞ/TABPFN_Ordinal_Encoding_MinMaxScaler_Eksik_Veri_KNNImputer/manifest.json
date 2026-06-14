@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "tabpfn",
+    "name": "tabpfn_minmax_knn",
+    "encoding": "ordinal",
+    "imputer": "knn",
+    "scaler": "minmax"
+  }
+}

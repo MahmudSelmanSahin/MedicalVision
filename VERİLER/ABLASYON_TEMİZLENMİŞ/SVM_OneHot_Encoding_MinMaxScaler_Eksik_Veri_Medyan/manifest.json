@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "svm",
+    "name": "svm_minmax_median",
+    "encoding": "onehot",
+    "imputer": "median",
+    "scaler": "minmax"
+  }
+}

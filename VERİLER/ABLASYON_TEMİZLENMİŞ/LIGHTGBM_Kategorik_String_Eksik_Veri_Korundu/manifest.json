@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "lightgbm",
+    "name": "lightgbm_none",
+    "encoding": "none",
+    "imputer": "none",
+    "scaler": "none"
+  }
+}

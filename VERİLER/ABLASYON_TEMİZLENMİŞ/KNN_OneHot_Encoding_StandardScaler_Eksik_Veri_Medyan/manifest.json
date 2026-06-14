@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "knn",
+    "name": "knn_standard_median",
+    "encoding": "onehot",
+    "imputer": "median",
+    "scaler": "standard"
+  }
+}

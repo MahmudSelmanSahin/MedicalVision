@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "tabpfn",
+    "name": "tabpfn_knn",
+    "encoding": "ordinal",
+    "imputer": "knn",
+    "scaler": "none"
+  }
+}

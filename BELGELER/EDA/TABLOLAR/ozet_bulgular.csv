@@ -1,0 +1,10 @@
+Bulgu,Değer
+En yüksek EK_-Label korelasyonu,EK_7 r=0.325
+Max EK_ iç korelasyonu,EK_7-EK_9 r=0.664
+AL_ çifti |r|>0.50 sayısı,20862
+AL_ çifti |r|>0.80 sayısı,3460
+RF Önem: AL_ toplam,%82.6
+RF Önem: EK_ toplam,%17.4
+Sıfır varyans sütun,57
+MASTER eksik hücre,568464 (%54.9)
+CAT_6 eksiklik,%97.7

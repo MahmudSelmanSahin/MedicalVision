@@ -1,0 +1,245 @@
+{
+  "model": "LIGHTGBM",
+  "scenario": "lightgbm_category_missing_native",
+  "folder_structure": "ABLASYON_CALISMASI/MODELLER/{MODEL}/{ENCODING}/{SCALER}/{EKSIK_VERI}",
+  "input_dir": "/Users/mahmudselmansahin/Teknofest/VERİLER/ORİJİNAL",
+  "output_dir": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/ABLASYON_CALISMASI/MODELLER/LIGHTGBM/Kategorik_String/Eksik_Veri_Korundu",
+  "panels": {
+    "MASTER": {
+      "scenario": {
+        "model": "lightgbm",
+        "name": "lightgbm_category_missing_native",
+        "encoding": "none",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": false,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": true
+      },
+      "input_shape": [
+        2931,
+        353
+      ],
+      "input_missing_values": 568464,
+      "dropped_columns": [],
+      "encoding": {
+        "method": "none",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "CAT_6",
+          "AA_1",
+          "AA_2"
+        ]
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        2931,
+        353
+      ],
+      "output_missing_values": 568464,
+      "label_counts": {
+        "1": 2149,
+        "0": 782
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [
+        "CAT_1",
+        "CAT_2",
+        "CAT_3",
+        "CAT_4",
+        "CAT_5",
+        "CAT_6",
+        "AA_1",
+        "AA_2"
+      ],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/ABLASYON_CALISMASI/MODELLER/LIGHTGBM/Kategorik_String/Eksik_Veri_Korundu/MASTER_lightgbm_category_missing_native.csv"
+    },
+    "KANSER": {
+      "scenario": {
+        "model": "lightgbm",
+        "name": "lightgbm_category_missing_native",
+        "encoding": "none",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": false,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": true
+      },
+      "input_shape": [
+        388,
+        353
+      ],
+      "input_missing_values": 78309,
+      "dropped_columns": [],
+      "encoding": {
+        "method": "none",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "CAT_6",
+          "AA_1",
+          "AA_2"
+        ]
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        388,
+        353
+      ],
+      "output_missing_values": 78309,
+      "label_counts": {
+        "1": 268,
+        "0": 120
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [
+        "CAT_1",
+        "CAT_2",
+        "CAT_3",
+        "CAT_4",
+        "CAT_5",
+        "CAT_6",
+        "AA_1",
+        "AA_2"
+      ],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/ABLASYON_CALISMASI/MODELLER/LIGHTGBM/Kategorik_String/Eksik_Veri_Korundu/KANSER_lightgbm_category_missing_native.csv"
+    },
+    "PAH": {
+      "scenario": {
+        "model": "lightgbm",
+        "name": "lightgbm_category_missing_native",
+        "encoding": "none",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": false,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": true
+      },
+      "input_shape": [
+        372,
+        353
+      ],
+      "input_missing_values": 71301,
+      "dropped_columns": [],
+      "encoding": {
+        "method": "none",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "CAT_6",
+          "AA_1",
+          "AA_2"
+        ]
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        372,
+        353
+      ],
+      "output_missing_values": 71301,
+      "label_counts": {
+        "1": 310,
+        "0": 62
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [
+        "CAT_1",
+        "CAT_2",
+        "CAT_3",
+        "CAT_4",
+        "CAT_5",
+        "CAT_6",
+        "AA_1",
+        "AA_2"
+      ],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/ABLASYON_CALISMASI/MODELLER/LIGHTGBM/Kategorik_String/Eksik_Veri_Korundu/PAH_lightgbm_category_missing_native.csv"
+    },
+    "CFTR": {
+      "scenario": {
+        "model": "lightgbm",
+        "name": "lightgbm_category_missing_native",
+        "encoding": "none",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": false,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": true
+      },
+      "input_shape": [
+        111,
+        353
+      ],
+      "input_missing_values": 11864,
+      "dropped_columns": [],
+      "encoding": {
+        "method": "none",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "CAT_6",
+          "AA_1",
+          "AA_2"
+        ]
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        111,
+        353
+      ],
+      "output_missing_values": 11864,
+      "label_counts": {
+        "1": 90,
+        "0": 21
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [
+        "CAT_1",
+        "CAT_2",
+        "CAT_3",
+        "CAT_4",
+        "CAT_5",
+        "CAT_6",
+        "AA_1",
+        "AA_2"
+      ],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/ABLASYON_CALISMASI/MODELLER/LIGHTGBM/Kategorik_String/Eksik_Veri_Korundu/CFTR_lightgbm_category_missing_native.csv"
+    }
+  }
+}

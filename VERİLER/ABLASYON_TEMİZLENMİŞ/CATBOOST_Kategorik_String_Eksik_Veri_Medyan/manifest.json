@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "catboost",
+    "name": "catboost_median",
+    "encoding": "none",
+    "imputer": "median",
+    "scaler": "none"
+  }
+}

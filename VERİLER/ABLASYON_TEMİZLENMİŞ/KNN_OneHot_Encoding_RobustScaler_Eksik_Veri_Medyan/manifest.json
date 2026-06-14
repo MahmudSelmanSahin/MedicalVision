@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "knn",
+    "name": "knn_robust_median",
+    "encoding": "onehot",
+    "imputer": "median",
+    "scaler": "robust"
+  }
+}

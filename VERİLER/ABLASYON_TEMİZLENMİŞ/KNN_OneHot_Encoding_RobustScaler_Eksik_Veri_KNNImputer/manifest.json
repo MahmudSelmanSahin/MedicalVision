@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "knn",
+    "name": "knn_robust_knn",
+    "encoding": "onehot",
+    "imputer": "knn",
+    "scaler": "robust"
+  }
+}

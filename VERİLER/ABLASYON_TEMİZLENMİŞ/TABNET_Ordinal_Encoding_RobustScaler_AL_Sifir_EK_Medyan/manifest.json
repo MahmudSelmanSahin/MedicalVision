@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "tabnet",
+    "name": "tabnet_robust_al_zero",
+    "encoding": "ordinal",
+    "imputer": "al_zero",
+    "scaler": "robust"
+  }
+}

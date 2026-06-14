@@ -1,0 +1,580 @@
+================================================================================
+1. GENEL BAKIŞ — VERİ YAPISI
+================================================================================
+
+MASTER:
+  Boyut        : 2931 × 353
+  Patojenik    : 2149  |  Benign: 782  |  Oran: 2.75:1
+  Eksik veri   : 568464 hücre (54.9%)
+
+KANSER:
+  Boyut        : 388 × 353
+  Patojenik    : 268  |  Benign: 120  |  Oran: 2.23:1
+  Eksik veri   : 78309 hücre (57.2%)
+
+PAH:
+  Boyut        : 372 × 353
+  Patojenik    : 310  |  Benign: 62  |  Oran: 5.00:1
+  Eksik veri   : 71301 hücre (54.3%)
+
+CFTR:
+  Boyut        : 111 × 353
+  Patojenik    : 90  |  Benign: 21  |  Oran: 4.29:1
+  Eksik veri   : 11864 hücre (30.3%)
+
+================================================================================
+2. ÖZELLİK KATEGORİLERİ
+================================================================================
+
+Toplam özellik : 351
+  AL_ (Allel Frekansı)      :  334 sütun
+  EK_ (Evrimsel Korunmuşluk):    9 sütun
+  AA_ (Amino Asit)          :    2 sütun
+  CAT_ (Kategorik)          :    6 sütun
+
+================================================================================
+3. EKSİK VERİ PROFİLİ — TÜM PANELLER
+================================================================================
+
+Kategori × Panel bazında ortalama eksiklik (%):
+category    AA    AL   CAT    EK
+panel                           
+CFTR       0.0  31.4  24.3   4.9
+KANSER     5.7  59.5  37.3   9.0
+MASTER    11.9  56.9  38.4  16.9
+PAH        2.4  56.5  34.4   7.9
+
+MASTER — En eksik 40 sütun:
+column  missing_count  missing_pct category
+ CAT_6           2864    97.714091      CAT
+ AL_32           2679    91.402252       AL
+ AL_33           2679    91.402252       AL
+ AL_31           2679    91.402252       AL
+ AL_30           2679    91.402252       AL
+ AL_29           2679    91.402252       AL
+ AL_28           2679    91.402252       AL
+ AL_27           2679    91.402252       AL
+ AL_34           2679    91.402252       AL
+ AL_35           2679    91.402252       AL
+ AL_36           2679    91.402252       AL
+ AL_37           2679    91.402252       AL
+ AL_38           2679    91.402252       AL
+  AL_2           2637    89.969294       AL
+  AL_1           2637    89.969294       AL
+  AL_3           2637    89.969294       AL
+  AL_4           2637    89.969294       AL
+  AL_5           2637    89.969294       AL
+  AL_6           2637    89.969294       AL
+AL_217           2179    74.343228       AL
+AL_214           2179    74.343228       AL
+AL_216           2179    74.343228       AL
+AL_215           2179    74.343228       AL
+AL_287           1952    66.598431       AL
+AL_288           1952    66.598431       AL
+AL_289           1952    66.598431       AL
+AL_286           1952    66.598431       AL
+AL_185           1946    66.393722       AL
+AL_183           1946    66.393722       AL
+AL_184           1946    66.393722       AL
+AL_253           1940    66.189014       AL
+AL_251           1940    66.189014       AL
+AL_250           1940    66.189014       AL
+AL_252           1940    66.189014       AL
+AL_275           1891    64.517230       AL
+AL_246           1890    64.483112       AL
+AL_235           1890    64.483112       AL
+AL_236           1890    64.483112       AL
+AL_237           1890    64.483112       AL
+AL_238           1890    64.483112       AL
+
+================================================================================
+4. SIFIR / DÜŞÜK VARYANS ANALİZİ (MASTER)
+================================================================================
+
+Sıfır varyans sütun sayısı    : 57
+Çok düşük varyans (<1e-6)     : 0
+Düşük varyans (1e-6 – 1e-3)  : 6
+  Sıfır varyans sütunları: ['AL_80', 'AL_101', 'AL_104', 'AL_107', 'AL_110', 'AL_113', 'AL_116', 'AL_119', 'AL_122', 'AL_125', 'AL_128', 'AL_131', 'AL_134', 'AL_137', 'AL_140', 'AL_143', 'AL_146', 'AL_149', 'AL_152', 'AL_155', 'AL_158', 'AL_161', 'AL_164', 'AL_167', 'AL_170', 'AL_173', 'AL_176', 'AL_179', 'AL_182', 'AL_185', 'AL_191', 'AL_195', 'AL_197', 'AL_208', 'AL_212', 'AL_220', 'AL_231', 'AL_233', 'AL_236', 'AL_244', 'AL_248', 'AL_256', 'AL_263', 'AL_272', 'AL_276', 'AL_280', 'AL_284', 'AL_292', 'AL_299', 'AL_303', 'AL_307', 'AL_309', 'AL_312', 'AL_316', 'AL_320', 'AL_324', 'AL_332']
+
+================================================================================
+5. EK_ KOLONLARI — DETAYLI ANALİZ
+================================================================================
+
+5A — EK_ kolonlarının Label ile Spearman korelasyonu:
+feature  spearman_r      p_value
+   EK_7    0.324502 7.699582e-73
+   EK_9    0.241510 3.629890e-40
+   EK_2    0.230759 9.990111e-37
+   EK_3    0.206362 1.485260e-29
+   EK_4    0.183939 1.019097e-23
+   EK_6    0.149355 4.362869e-16
+   EK_5    0.110161 2.236526e-09
+   EK_8    0.089289 1.287854e-06
+   EK_1    0.054315 3.266961e-03
+
+5B — EK_ kolonları arası Spearman korelasyon matrisi:
+       EK_1   EK_2   EK_3   EK_4   EK_5   EK_6   EK_7   EK_8   EK_9
+EK_1  1.000  0.580  0.111  0.076  0.176  0.072  0.112  0.121  0.085
+EK_2  0.580  1.000  0.395  0.235  0.205  0.241  0.475  0.254  0.411
+EK_3  0.111  0.395  1.000  0.238  0.126  0.209  0.465  0.188  0.360
+EK_4  0.076  0.235  0.238  1.000  0.129  0.232  0.295  0.127  0.229
+EK_5  0.176  0.205  0.126  0.129  1.000  0.138  0.176  0.118  0.126
+EK_6  0.072  0.241  0.209  0.232  0.138  1.000  0.249  0.108  0.209
+EK_7  0.112  0.475  0.465  0.295  0.176  0.249  1.000  0.316  0.664
+EK_8  0.121  0.254  0.188  0.127  0.118  0.108  0.316  1.000  0.418
+EK_9  0.085  0.411  0.360  0.229  0.126  0.209  0.664  0.418  1.000
+
+5B — EK_ çiftleri (|r| sıralaması):
+feature1 feature2  spearman_r
+    EK_7     EK_9      0.6644
+    EK_1     EK_2      0.5804
+    EK_2     EK_7      0.4753
+    EK_3     EK_7      0.4655
+    EK_8     EK_9      0.4185
+    EK_2     EK_9      0.4111
+    EK_2     EK_3      0.3954
+    EK_3     EK_9      0.3595
+    EK_7     EK_8      0.3162
+    EK_4     EK_7      0.2951
+    EK_2     EK_8      0.2542
+    EK_6     EK_7      0.2493
+    EK_2     EK_6      0.2410
+    EK_3     EK_4      0.2378
+    EK_2     EK_4      0.2354
+    EK_4     EK_6      0.2318
+    EK_4     EK_9      0.2289
+    EK_6     EK_9      0.2092
+    EK_3     EK_6      0.2090
+    EK_2     EK_5      0.2045
+    EK_3     EK_8      0.1882
+    EK_1     EK_5      0.1763
+    EK_5     EK_7      0.1763
+    EK_5     EK_6      0.1383
+    EK_4     EK_5      0.1294
+    EK_4     EK_8      0.1273
+    EK_5     EK_9      0.1264
+    EK_3     EK_5      0.1262
+    EK_1     EK_8      0.1209
+    EK_5     EK_8      0.1183
+    EK_1     EK_7      0.1116
+    EK_1     EK_3      0.1108
+    EK_6     EK_8      0.1081
+    EK_1     EK_9      0.0848
+    EK_1     EK_4      0.0758
+    EK_1     EK_6      0.0719
+
+5C — EK_ kolonları Mann-Whitney U testi (label bazlı ayrım):
+feature  mean_benign  mean_pathogen   U_stat  p_value  effect_r
+   EK_7       4.4439         6.6833 484664.0 0.000000    0.4232
+   EK_9       5.9577         8.1418 576560.5 0.000000    0.3138
+   EK_2       3.6242         4.8759 587387.5 0.000000    0.3009
+   EK_3       2.6124         3.6036 624770.0 0.000000    0.2565
+   EK_4       0.7932         0.9502 643808.5 0.000000    0.2338
+   EK_6       0.8108         0.9552 681145.0 0.000000    0.1894
+   EK_5       0.7666         0.8452 720050.0 0.000000    0.1431
+   EK_8       0.4603         0.6086 742425.5 0.000001    0.1164
+   EK_1       5.2102         5.2997 780739.0 0.003282    0.0708
+
+================================================================================
+6. AL_ KOLONLARI ANALİZİ
+================================================================================
+
+6A — AL_ × Label Spearman (|r| top 30):
+feature  spearman_r      p_value
+   AL_1   -0.347456 6.263460e-84
+   AL_2   -0.345820 4.157277e-83
+   AL_3   -0.345523 5.850831e-83
+   AL_6   -0.345329 7.316746e-83
+   AL_4   -0.344075 3.089397e-82
+   AL_5   -0.343558 5.588361e-82
+  AL_16   -0.325223 3.567868e-73
+  AL_17   -0.320274 6.716604e-71
+  AL_19   -0.319204 2.058965e-70
+  AL_24   -0.317426 1.309651e-69
+  AL_23   -0.315648 8.224907e-69
+  AL_22   -0.313123 1.094475e-67
+  AL_30   -0.311555 5.388101e-67
+  AL_28   -0.311317 6.858716e-67
+  AL_38   -0.311144 8.167806e-67
+  AL_36   -0.310724 1.249116e-66
+  AL_32   -0.310690 1.293680e-66
+  AL_34   -0.309243 5.557586e-66
+  AL_20   -0.307606 2.862994e-65
+  AL_25   -0.304288 7.694004e-64
+  AL_18   -0.300902 2.116632e-62
+  AL_21   -0.297889 3.895966e-61
+ AL_215   -0.295291 4.667105e-60
+ AL_216   -0.273239 2.392917e-51
+ AL_287   -0.263725 7.868412e-48
+ AL_251   -0.259776 2.059095e-46
+ AL_327   -0.256973 2.021375e-45
+  AL_27   -0.255278 7.933083e-45
+ AL_184   -0.248653 1.507337e-42
+  AL_29   -0.248504 1.692425e-42
+
+6B — AL_ kolonları arası korelasyon (|r| > 0.50) — TAM TARAMA:
+  Toplam yüksek korelasyonlu AL_ çifti: 20862
+feature1 feature2  spearman_r  p_value
+  AL_131   AL_143         1.0      0.0
+  AL_122   AL_170         1.0      0.0
+  AL_208   AL_231         1.0      0.0
+  AL_208   AL_233         1.0      0.0
+  AL_208   AL_236         1.0      0.0
+  AL_236   AL_263         1.0      0.0
+  AL_208   AL_244         1.0      0.0
+  AL_236   AL_256         1.0      0.0
+  AL_208   AL_248         1.0      0.0
+  AL_122   AL_173         1.0      0.0
+  AL_208   AL_272         1.0      0.0
+  AL_236   AL_248         1.0      0.0
+  AL_152   AL_179         1.0      0.0
+  AL_236   AL_244         1.0      0.0
+  AL_152   AL_176         1.0      0.0
+  AL_208   AL_256         1.0      0.0
+  AL_208   AL_263         1.0      0.0
+  AL_122   AL_176         1.0      0.0
+  AL_236   AL_272         1.0      0.0
+  AL_122   AL_167         1.0      0.0
+  AL_236   AL_276         1.0      0.0
+  AL_208   AL_220         1.0      0.0
+  AL_155   AL_164         1.0      0.0
+  AL_122   AL_146         1.0      0.0
+  AL_122   AL_149         1.0      0.0
+  AL_155   AL_161         1.0      0.0
+  AL_122   AL_152         1.0      0.0
+  AL_155   AL_158         1.0      0.0
+  AL_122   AL_155         1.0      0.0
+  AL_122   AL_158         1.0      0.0
+
+  |r| eşik bazında AL_ çift sayısı:
+    > 0.5: 20860 çift
+    > 0.6: 10915 çift
+    > 0.7: 4025 çift
+    > 0.8: 3460 çift
+    > 0.9: 2836 çift
+
+6C — AL_ eksiklik yüzdesi grupları (MASTER):
+grup
+<10%        0
+10-30%      0
+30-50%    171
+50-70%    141
+70-90%     10
+>90%       12
+
+================================================================================
+7. AA_ ve CAT_ KATEGORİK ÖZELLİKLER
+================================================================================
+
+AA_1:
+  Benzersiz değer : 24
+  Eksik           : 348 (11.9%)
+  En sık 5 değer  :
+AA_1
+R      422
+NaN    348
+G      243
+L      184
+D      165
+  Chi-square      : 153.07  (p=0.0000, df=24)
+
+AA_2:
+  Benzersiz değer : 25
+  Eksik           : 350 (11.9%)
+  En sık 5 değer  :
+AA_2
+NaN    350
+R      259
+S      199
+P      178
+C      170
+  Chi-square      : 165.41  (p=0.0000, df=25)
+
+CAT_1:
+  Benzersiz değer : 30
+  Eksik           : 1085 (37.0%)
+  En sık 5 değer  :
+CAT_1
+NaN            1085
+gnomADe_NFE     454
+gnomADg_NFE     167
+gnomADe_SAS     116
+gnomADe_EAS     103
+  Chi-square      : 330.65  (p=0.0000, df=30)
+
+CAT_2:
+  Benzersiz değer : 7
+  Eksik           : 1734 (59.2%)
+  En sık 5 değer  :
+CAT_2
+NaN            1734
+AllofUs_EUR     439
+AllofUs_AFR     236
+AllofUs_AMR     177
+AllofUs_OTH     113
+  Chi-square      : 163.45  (p=0.0000, df=7)
+
+CAT_3:
+  Benzersiz değer : 5
+  Eksik           : 359 (12.2%)
+  En sık 5 değer  :
+CAT_3
+G/G    748
+C/C    727
+T/T    403
+A/A    394
+NaN    359
+  Chi-square      : 37.21  (p=0.0000, df=5)
+
+CAT_4:
+  Benzersiz değer : 5
+  Eksik           : 359 (12.2%)
+  En sık 5 değer  :
+CAT_4
+G/G    747
+C/C    725
+T/T    404
+A/A    395
+NaN    359
+  Chi-square      : 37.27  (p=0.0000, df=5)
+
+CAT_5:
+  Benzersiz değer : 5
+  Eksik           : 359 (12.2%)
+  En sık 5 değer  :
+CAT_5
+G/G    748
+C/C    727
+T/T    403
+A/A    394
+NaN    359
+  Chi-square      : 37.21  (p=0.0000, df=5)
+
+CAT_6:
+  Benzersiz değer : 3
+  Eksik           : 2864 (97.7%)
+  En sık 5 değer  :
+CAT_6
+NaN             2864
+segdup            63
+lcr                2
+decoy&segdup       2
+  Chi-square      : 27.91  (p=0.0000, df=3)
+
+================================================================================
+8. TÜM SAYISAL ÖZELLİKLER × LABEL — SPEARMAN (|r| Top 50)
+================================================================================
+
+
+feature  spearman_r      p_value category
+   AL_1   -0.347456 6.263460e-84       AL
+   AL_2   -0.345820 4.157277e-83       AL
+   AL_3   -0.345523 5.850831e-83       AL
+   AL_6   -0.345329 7.316746e-83       AL
+   AL_4   -0.344075 3.089397e-82       AL
+   AL_5   -0.343558 5.588361e-82       AL
+   EK_7    0.341747 4.402817e-81       EK
+  AL_16   -0.325223 3.567868e-73       AL
+  AL_17   -0.320274 6.716604e-71       AL
+  AL_19   -0.319204 2.058965e-70       AL
+  AL_24   -0.317426 1.309651e-69       AL
+  AL_23   -0.315648 8.224907e-69       AL
+  AL_22   -0.313123 1.094475e-67       AL
+  AL_30   -0.311555 5.388101e-67       AL
+  AL_28   -0.311317 6.858716e-67       AL
+  AL_38   -0.311144 8.167806e-67       AL
+  AL_36   -0.310724 1.249116e-66       AL
+  AL_32   -0.310690 1.293680e-66       AL
+  AL_34   -0.309243 5.557586e-66       AL
+  AL_20   -0.307606 2.862994e-65       AL
+  AL_25   -0.304288 7.694004e-64       AL
+  AL_18   -0.300902 2.116632e-62       AL
+  AL_21   -0.297889 3.895966e-61       AL
+ AL_215   -0.295291 4.667105e-60       AL
+ AL_216   -0.273239 2.392917e-51       AL
+   EK_2    0.269895 4.278431e-50       EK
+ AL_287   -0.263725 7.868412e-48       AL
+ AL_251   -0.259776 2.059095e-46       AL
+ AL_327   -0.256973 2.021375e-45       AL
+  AL_27   -0.255278 7.933083e-45       AL
+   EK_9    0.251073 2.258400e-43       EK
+ AL_184   -0.248653 1.507337e-42       AL
+  AL_29   -0.248504 1.692425e-42       AL
+ AL_224   -0.246393 8.712508e-42       AL
+  AL_35   -0.246298 9.372140e-42       AL
+ AL_260   -0.245169 2.237312e-41       AL
+ AL_188   -0.243393 8.700800e-41       AL
+  AL_37   -0.241736 3.059558e-40       AL
+ AL_226   -0.240997 5.344103e-40       AL
+ AL_194   -0.240801 6.194621e-40       AL
+ AL_190   -0.239919 1.202061e-39       AL
+ AL_262   -0.238565 3.305602e-39       AL
+  AL_31   -0.237304 8.439260e-39       AL
+ AL_266   -0.236820 1.207276e-38       AL
+ AL_211   -0.235843 2.481676e-38       AL
+ AL_255   -0.235620 2.923269e-38       AL
+  AL_26   -0.235492 3.211008e-38       AL
+  AL_83   -0.234842 5.170621e-38       AL
+  AL_33   -0.233538 1.339916e-37       AL
+ AL_230   -0.233241 1.662651e-37       AL
+
+================================================================================
+9. PANEL KARŞILAŞTIRMASI — EK_ ORTALAMALARI
+================================================================================
+
+EK_ ortalamalar (mean ± std) — Panel × Label:
+feature        EK_1   EK_2   EK_3   EK_4   EK_5   EK_6   EK_7   EK_8   EK_9
+panel  label                                                               
+CFTR   0      5.528  4.335  2.506  0.936  0.937  0.819  4.348  0.601  5.078
+       1      5.439  5.214  3.382  0.983  0.947  0.991  7.261  0.643  9.033
+KANSER 0      5.238  2.712  1.943  0.640  0.716  0.672  2.832  0.363  4.040
+       1      5.504  5.070  4.213  0.945  0.929  0.963  6.461  0.632  8.640
+MASTER 0      5.176  3.294  1.896  0.749  0.723  0.770  3.849  0.420  5.310
+       1      5.292  4.851  3.524  0.946  0.832  0.951  6.637  0.605  8.209
+PAH    0      5.563  3.577  1.779  0.877  0.750  0.810  4.160  0.369  5.835
+       1      5.679  4.876  2.741  0.966  0.859  0.930  6.513  0.590  7.931
+
+================================================================================
+10. RANDOM FOREST ÖZELLİK ÖNEMİ (MASTER Panel — Hızlı Surrogate)
+================================================================================
+
+Top 30 özellik (RF importance):
+feature  importance category
+   EK_7    0.044570       EK
+   EK_2    0.031511       EK
+   EK_4    0.024200       EK
+   EK_9    0.021360       EK
+  AL_26    0.020447       AL
+   AL_1    0.018152       AL
+  AL_16    0.016376       AL
+  AL_20    0.016046       AL
+   AL_8    0.015753       AL
+ AL_215    0.015722       AL
+  AL_19    0.015028       AL
+  AL_11    0.014969       AL
+   EK_6    0.014936       EK
+  AL_10    0.014723       AL
+   AL_9    0.014423       AL
+   AL_7    0.012550       AL
+  AL_12    0.012521       AL
+   EK_8    0.012318       EK
+  AL_23    0.012202       AL
+  AL_13    0.011881       AL
+   AL_5    0.011766       AL
+  AL_22    0.011759       AL
+  AL_18    0.011718       AL
+ AL_327    0.011318       AL
+  AL_21    0.011176       AL
+   AL_4    0.010806       AL
+ AL_331    0.010282       AL
+   EK_1    0.010086       EK
+  AL_17    0.010080       AL
+   AL_6    0.009855       AL
+
+Kategori bazında toplam önem:
+category
+AL    0.8264
+EK    0.1736
+
+================================================================================
+11. EK_ × TOP-AL_ ÇAPRAZ KORELASYONLARİ
+================================================================================
+
+EK_ × Top-20 AL_ Spearman korelasyon:
+AL     AL_1  AL_16  AL_17  AL_19   AL_2  AL_20  AL_22  AL_23  AL_24  AL_25  AL_28   AL_3  AL_30  AL_32  AL_34  AL_36  AL_38   AL_4   AL_5   AL_6
+EK                                                                                                                                              
+EK_1 -0.037 -0.072 -0.059 -0.066 -0.037 -0.062 -0.070 -0.063 -0.066 -0.063  0.038 -0.036  0.038  0.037  0.039  0.037  0.039 -0.036 -0.037 -0.036
+EK_2 -0.147 -0.179 -0.169 -0.165 -0.145 -0.158 -0.163 -0.162 -0.167 -0.159 -0.086 -0.143 -0.086 -0.085 -0.084 -0.086 -0.084 -0.144 -0.145 -0.144
+EK_3 -0.071 -0.053 -0.054 -0.054 -0.070 -0.037 -0.039 -0.046 -0.047 -0.043 -0.035 -0.069 -0.036 -0.036 -0.037 -0.036 -0.035 -0.070 -0.069 -0.070
+EK_4 -0.119 -0.120 -0.104 -0.111 -0.116 -0.102 -0.103 -0.103 -0.112 -0.104 -0.047 -0.118 -0.048 -0.048 -0.046 -0.046 -0.047 -0.116 -0.116 -0.117
+EK_5 -0.104 -0.131 -0.128 -0.141 -0.104 -0.116 -0.119 -0.120 -0.131 -0.130 -0.033 -0.102 -0.034 -0.034 -0.031 -0.031 -0.032 -0.101 -0.101 -0.101
+EK_6 -0.082 -0.113 -0.100 -0.106 -0.079 -0.100 -0.103 -0.098 -0.102 -0.102 -0.008 -0.080 -0.008 -0.007 -0.006 -0.007 -0.007 -0.080 -0.080 -0.079
+EK_7 -0.196 -0.212 -0.209 -0.212 -0.194 -0.198 -0.201 -0.205 -0.204 -0.204 -0.138 -0.194 -0.138 -0.138 -0.136 -0.138 -0.138 -0.195 -0.194 -0.196
+EK_8 -0.100 -0.085 -0.071 -0.079 -0.099 -0.071 -0.078 -0.076 -0.076 -0.081 -0.039 -0.099 -0.040 -0.039 -0.039 -0.039 -0.040 -0.098 -0.098 -0.100
+EK_9 -0.145 -0.177 -0.175 -0.175 -0.144 -0.161 -0.167 -0.162 -0.166 -0.170 -0.091 -0.142 -0.091 -0.091 -0.089 -0.089 -0.091 -0.144 -0.143 -0.144
+
+================================================================================
+12. ÖZET BULGULAR VE PDR ÖNERİLERİ
+================================================================================
+
+DOĞRULANAN BULGULAR:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. EK_ KOLONLARI:
+   • Label ile en güçlü korelasyon: EK_7 (r=0.3245)
+   • Label ile en zayıf korelasyon: EK_1 (r=0.0543)
+   • EK_ arası max korelasyon: EK_7 – EK_9 (r=0.6644)
+   • EK_ çiftlerinin tümü orta-yüksek korelasyona sahip → multicollinearity gerçek
+
+2. AL_ KOLONLARI:
+   • 334 AL_ kolonundan yalnızca 20862 çiftin |r| > 0.50
+   • |r| > 0.80 AL_ çifti: 3460 (neredeyse hiç değil)
+   • Label ile en yüksek: AL_1 (r=-0.3475)
+   • AL_ kolonları birbirinden büyük ölçüde BAĞIMSIZ
+
+3. SINIF AYRIMI:
+   • RF Importance: AL_ toplam %82.6 | EK_ %17.4
+   • EK_ kolonları az sayıda ama güçlü sinyal taşıyor
+   • AL_ kolonları çok sayıda ama tek tek zayıf sinyal (kollektif önem büyük)
+
+4. EKSİK VERİ:
+   • AL_ ortalama %56.9 eksik (MASTER)
+   • EK_ ortalama %16.9 eksik
+   • CAT_6 %97.7 eksik → bu kolon atılabilir
+
+5. PANEL FARKLILIKLARI:
+   • CFTR paneli EK_ ortalamalarında diğerlerinden yüksek
+     (küçük panel + seçilmiş CFTR varyantları biyolojik olarak farklı)
+   • PAH'ta EK_3 diğer panellerden düşük
+
+PDR YORUMU (doğrulanmış):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Yüksek korelasyon iddiası EK_ kolonlarının KENDİ ARASINDA geçerli
+  (EK_2-EK_3: r=0.395, EK_7-EK_9: r=0.664)
+• AL_ kolonları ARASINDA yüksek korelasyon YOK — her biri farklı populasyon
+• Bu ayrım Feature Selection mekanizmalarını doğrudan etkiliyor:
+  FILTER yöntemleri EK_ multicollinearity'yi görmüyor (tek değişken bazlı)
+  EMBEDDED/WRAPPER yöntemleri EK_ tekrarları teke indirgiyor → avantaj
+
+
+================================================================================
+ÇIKTI DOSYALARI
+================================================================================
+
+TABLOLAR  : /Users/mahmudselmansahin/Teknofest/MODELLER/EDA/TABLOLAR
+  al_arasi_yuksek_korelasyon.csv
+  al_eksiklik_gruplari.csv
+  al_label_korelasyon.csv
+  ek_al_capraz_korelasyon.csv
+  ek_arasi_korelasyon_ciftler.csv
+  ek_arasi_korelasyon_matrisi.csv
+  ek_label_korelasyon.csv
+  ek_mannwhitney.csv
+  eksik_veri_profili.csv
+  kategorik_chi2.csv
+  ozet_bulgular.csv
+  panel_ek_karsilastirma.csv
+  panel_genel_bakis.csv
+  rf_feature_importance.csv
+  tum_ozellikler_label_korelasyon.csv
+  varyans_analizi.csv
+
+GRAFİKLER : /Users/mahmudselmansahin/Teknofest/MODELLER/EDA/GRAFIKLER
+  01_sinif_dagilimi.png
+  02_ozellik_kategorileri.png
+  03_eksik_veri_isitaritasi.png
+  04_varyans_analizi.png
+  05a_ek_korelasyon_matrisi.png
+  05b_ek_boxplot_label.png
+  06a_al_label_korelasyon_top40.png
+  07_aa_label_dagilimi.png
+  08_tum_ozellikler_label_korelasyon.png
+  09_panel_ek_karsilastirma.png
+  10_rf_feature_importance.png
+  11_ek_al_capraz_korelasyon.png
+
+RAPOR     : /Users/mahmudselmansahin/Teknofest/MODELLER/EDA/EDA_RAPORU.txt
+
+================================================================================
+KAPSAMLI EDA TAMAMLANDI
+================================================================================

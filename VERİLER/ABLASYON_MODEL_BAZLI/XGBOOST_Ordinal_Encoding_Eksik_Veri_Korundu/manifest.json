@@ -1,0 +1,729 @@
+{
+  "model": "XGBOOST",
+  "scenario": "xgboost_ordinal_missing_native",
+  "folder_structure": "ABLASYON_CALISMASI/MODELLER/{MODEL}/{ENCODING}/{SCALER}/{EKSIK_VERI}",
+  "input_dir": "/Users/mahmudselmansahin/Teknofest/VERİLER/ORİJİNAL",
+  "output_dir": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/ABLASYON_CALISMASI/MODELLER/XGBOOST/Ordinal_Encoding/Eksik_Veri_Korundu",
+  "panels": {
+    "MASTER": {
+      "scenario": {
+        "model": "xgboost",
+        "name": "xgboost_ordinal_missing_native",
+        "encoding": "ordinal",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": false,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": false
+      },
+      "input_shape": [
+        2931,
+        353
+      ],
+      "input_missing_values": 568464,
+      "dropped_columns": [],
+      "encoding": {
+        "method": "ordinal",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "CAT_6",
+          "AA_1",
+          "AA_2"
+        ],
+        "mappings": {
+          "CAT_1": {
+            "AFR": 0,
+            "AMR": 1,
+            "EAS": 2,
+            "EAS&EUR": 3,
+            "EAS&EUR&SAS&gnomADe_ASJ&gnomADe_FIN&gnomADg_AMI&gnomADg_ASJ&gnomADg_EAS&gnomADg_FIN&gnomADg_MID&gnomADg_SAS": 4,
+            "EAS&SAS": 5,
+            "EUR": 6,
+            "SAS": 7,
+            "__MISSING__": 8,
+            "gnomADe_AFR": 9,
+            "gnomADe_AFR&gnomADe_AMR&gnomADe_ASJ&gnomADe_EAS&gnomADe_FIN&gnomADe_MID&gnomADe_NFE&gnomADe_REMAINING&gnomADe_SAS": 10,
+            "gnomADe_AMR": 11,
+            "gnomADe_ASJ": 12,
+            "gnomADe_EAS": 13,
+            "gnomADe_FIN": 14,
+            "gnomADe_MID": 15,
+            "gnomADe_NFE": 16,
+            "gnomADe_NFE&gnomADg_NFE": 17,
+            "gnomADe_REMAINING": 18,
+            "gnomADe_SAS": 19,
+            "gnomADg_AFR": 20,
+            "gnomADg_AFR&gnomADg_AMI&gnomADg_AMR&gnomADg_ASJ&gnomADg_EAS&gnomADg_FIN&gnomADg_MID&gnomADg_NFE&gnomADg_REMAINING&gnomADg_SAS": 21,
+            "gnomADg_AMI": 22,
+            "gnomADg_AMR": 23,
+            "gnomADg_ASJ": 24,
+            "gnomADg_EAS": 25,
+            "gnomADg_FIN": 26,
+            "gnomADg_MID": 27,
+            "gnomADg_NFE": 28,
+            "gnomADg_REMAINING": 29,
+            "gnomADg_SAS": 30
+          },
+          "CAT_2": {
+            "AllofUs_AFR": 0,
+            "AllofUs_AMR": 1,
+            "AllofUs_EAS": 2,
+            "AllofUs_EUR": 3,
+            "AllofUs_MID": 4,
+            "AllofUs_OTH": 5,
+            "AllofUs_SAS": 6,
+            "__MISSING__": 7
+          },
+          "CAT_3": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_4": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_5": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_6": {
+            "__MISSING__": 0,
+            "decoy&segdup": 1,
+            "lcr": 2,
+            "segdup": 3
+          },
+          "AA_1": {
+            "A": 0,
+            "AG": 1,
+            "C": 2,
+            "CG": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+            "I": 9,
+            "K": 10,
+            "L": 11,
+            "M": 12,
+            "N": 13,
+            "P": 14,
+            "Q": 15,
+            "R": 16,
+            "S": 17,
+            "SV": 18,
+            "T": 19,
+            "TH": 20,
+            "V": 21,
+            "W": 22,
+            "Y": 23,
+            "__MISSING__": 24
+          },
+          "AA_2": {
+            "*": 0,
+            "A": 1,
+            "AS": 2,
+            "C": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+            "I": 9,
+            "K": 10,
+            "L": 11,
+            "M": 12,
+            "N": 13,
+            "P": 14,
+            "PN": 15,
+            "Q": 16,
+            "R": 17,
+            "RI": 18,
+            "S": 19,
+            "SD": 20,
+            "T": 21,
+            "V": 22,
+            "W": 23,
+            "Y": 24,
+            "__MISSING__": 25
+          }
+        }
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        2931,
+        353
+      ],
+      "output_missing_values": 561006,
+      "label_counts": {
+        "1": 2149,
+        "0": 782
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/ABLASYON_CALISMASI/MODELLER/XGBOOST/Ordinal_Encoding/Eksik_Veri_Korundu/MASTER_xgboost_ordinal_missing_native.csv"
+    },
+    "KANSER": {
+      "scenario": {
+        "model": "xgboost",
+        "name": "xgboost_ordinal_missing_native",
+        "encoding": "ordinal",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": false,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": false
+      },
+      "input_shape": [
+        388,
+        353
+      ],
+      "input_missing_values": 78309,
+      "dropped_columns": [],
+      "encoding": {
+        "method": "ordinal",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "CAT_6",
+          "AA_1",
+          "AA_2"
+        ],
+        "mappings": {
+          "CAT_1": {
+            "AFR": 0,
+            "AMR": 1,
+            "EAS": 2,
+            "EAS&EUR": 3,
+            "EAS&EUR&SAS&gnomADe_ASJ&gnomADe_FIN&gnomADg_AMI&gnomADg_ASJ&gnomADg_EAS&gnomADg_FIN&gnomADg_MID&gnomADg_SAS": 4,
+            "EAS&SAS": 5,
+            "EUR": 6,
+            "SAS": 7,
+            "__MISSING__": 8,
+            "gnomADe_AFR": 9,
+            "gnomADe_AFR&gnomADe_AMR&gnomADe_ASJ&gnomADe_EAS&gnomADe_FIN&gnomADe_MID&gnomADe_NFE&gnomADe_REMAINING&gnomADe_SAS": 10,
+            "gnomADe_AMR": 11,
+            "gnomADe_ASJ": 12,
+            "gnomADe_EAS": 13,
+            "gnomADe_FIN": 14,
+            "gnomADe_MID": 15,
+            "gnomADe_NFE": 16,
+            "gnomADe_NFE&gnomADg_NFE": 17,
+            "gnomADe_REMAINING": 18,
+            "gnomADe_SAS": 19,
+            "gnomADg_AFR": 20,
+            "gnomADg_AFR&gnomADg_AMI&gnomADg_AMR&gnomADg_ASJ&gnomADg_EAS&gnomADg_FIN&gnomADg_MID&gnomADg_NFE&gnomADg_REMAINING&gnomADg_SAS": 21,
+            "gnomADg_AMI": 22,
+            "gnomADg_AMR": 23,
+            "gnomADg_ASJ": 24,
+            "gnomADg_EAS": 25,
+            "gnomADg_FIN": 26,
+            "gnomADg_MID": 27,
+            "gnomADg_NFE": 28,
+            "gnomADg_REMAINING": 29,
+            "gnomADg_SAS": 30
+          },
+          "CAT_2": {
+            "AllofUs_AFR": 0,
+            "AllofUs_AMR": 1,
+            "AllofUs_EAS": 2,
+            "AllofUs_EUR": 3,
+            "AllofUs_MID": 4,
+            "AllofUs_OTH": 5,
+            "AllofUs_SAS": 6,
+            "__MISSING__": 7
+          },
+          "CAT_3": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_4": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_5": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_6": {
+            "__MISSING__": 0,
+            "decoy&segdup": 1,
+            "lcr": 2,
+            "segdup": 3
+          },
+          "AA_1": {
+            "A": 0,
+            "AG": 1,
+            "C": 2,
+            "CG": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+            "I": 9,
+            "K": 10,
+            "L": 11,
+            "M": 12,
+            "N": 13,
+            "P": 14,
+            "Q": 15,
+            "R": 16,
+            "S": 17,
+            "SV": 18,
+            "T": 19,
+            "TH": 20,
+            "V": 21,
+            "W": 22,
+            "Y": 23,
+            "__MISSING__": 24
+          },
+          "AA_2": {
+            "*": 0,
+            "A": 1,
+            "AS": 2,
+            "C": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+            "I": 9,
+            "K": 10,
+            "L": 11,
+            "M": 12,
+            "N": 13,
+            "P": 14,
+            "PN": 15,
+            "Q": 16,
+            "R": 17,
+            "RI": 18,
+            "S": 19,
+            "SD": 20,
+            "T": 21,
+            "V": 22,
+            "W": 23,
+            "Y": 24,
+            "__MISSING__": 25
+          }
+        }
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        388,
+        353
+      ],
+      "output_missing_values": 77397,
+      "label_counts": {
+        "1": 268,
+        "0": 120
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/ABLASYON_CALISMASI/MODELLER/XGBOOST/Ordinal_Encoding/Eksik_Veri_Korundu/KANSER_xgboost_ordinal_missing_native.csv"
+    },
+    "PAH": {
+      "scenario": {
+        "model": "xgboost",
+        "name": "xgboost_ordinal_missing_native",
+        "encoding": "ordinal",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": false,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": false
+      },
+      "input_shape": [
+        372,
+        353
+      ],
+      "input_missing_values": 71301,
+      "dropped_columns": [],
+      "encoding": {
+        "method": "ordinal",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "CAT_6",
+          "AA_1",
+          "AA_2"
+        ],
+        "mappings": {
+          "CAT_1": {
+            "AFR": 0,
+            "AMR": 1,
+            "EAS": 2,
+            "EAS&EUR": 3,
+            "EAS&EUR&SAS&gnomADe_ASJ&gnomADe_FIN&gnomADg_AMI&gnomADg_ASJ&gnomADg_EAS&gnomADg_FIN&gnomADg_MID&gnomADg_SAS": 4,
+            "EAS&SAS": 5,
+            "EUR": 6,
+            "SAS": 7,
+            "__MISSING__": 8,
+            "gnomADe_AFR": 9,
+            "gnomADe_AFR&gnomADe_AMR&gnomADe_ASJ&gnomADe_EAS&gnomADe_FIN&gnomADe_MID&gnomADe_NFE&gnomADe_REMAINING&gnomADe_SAS": 10,
+            "gnomADe_AMR": 11,
+            "gnomADe_ASJ": 12,
+            "gnomADe_EAS": 13,
+            "gnomADe_FIN": 14,
+            "gnomADe_MID": 15,
+            "gnomADe_NFE": 16,
+            "gnomADe_NFE&gnomADg_NFE": 17,
+            "gnomADe_REMAINING": 18,
+            "gnomADe_SAS": 19,
+            "gnomADg_AFR": 20,
+            "gnomADg_AFR&gnomADg_AMI&gnomADg_AMR&gnomADg_ASJ&gnomADg_EAS&gnomADg_FIN&gnomADg_MID&gnomADg_NFE&gnomADg_REMAINING&gnomADg_SAS": 21,
+            "gnomADg_AMI": 22,
+            "gnomADg_AMR": 23,
+            "gnomADg_ASJ": 24,
+            "gnomADg_EAS": 25,
+            "gnomADg_FIN": 26,
+            "gnomADg_MID": 27,
+            "gnomADg_NFE": 28,
+            "gnomADg_REMAINING": 29,
+            "gnomADg_SAS": 30
+          },
+          "CAT_2": {
+            "AllofUs_AFR": 0,
+            "AllofUs_AMR": 1,
+            "AllofUs_EAS": 2,
+            "AllofUs_EUR": 3,
+            "AllofUs_MID": 4,
+            "AllofUs_OTH": 5,
+            "AllofUs_SAS": 6,
+            "__MISSING__": 7
+          },
+          "CAT_3": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_4": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_5": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_6": {
+            "__MISSING__": 0,
+            "decoy&segdup": 1,
+            "lcr": 2,
+            "segdup": 3
+          },
+          "AA_1": {
+            "A": 0,
+            "AG": 1,
+            "C": 2,
+            "CG": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+            "I": 9,
+            "K": 10,
+            "L": 11,
+            "M": 12,
+            "N": 13,
+            "P": 14,
+            "Q": 15,
+            "R": 16,
+            "S": 17,
+            "SV": 18,
+            "T": 19,
+            "TH": 20,
+            "V": 21,
+            "W": 22,
+            "Y": 23,
+            "__MISSING__": 24
+          },
+          "AA_2": {
+            "*": 0,
+            "A": 1,
+            "AS": 2,
+            "C": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+            "I": 9,
+            "K": 10,
+            "L": 11,
+            "M": 12,
+            "N": 13,
+            "P": 14,
+            "PN": 15,
+            "Q": 16,
+            "R": 17,
+            "RI": 18,
+            "S": 19,
+            "SD": 20,
+            "T": 21,
+            "V": 22,
+            "W": 23,
+            "Y": 24,
+            "__MISSING__": 25
+          }
+        }
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        372,
+        353
+      ],
+      "output_missing_values": 70515,
+      "label_counts": {
+        "1": 310,
+        "0": 62
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/ABLASYON_CALISMASI/MODELLER/XGBOOST/Ordinal_Encoding/Eksik_Veri_Korundu/PAH_xgboost_ordinal_missing_native.csv"
+    },
+    "CFTR": {
+      "scenario": {
+        "model": "xgboost",
+        "name": "xgboost_ordinal_missing_native",
+        "encoding": "ordinal",
+        "imputer": "none",
+        "scaler": "none",
+        "drop_high_missing": false,
+        "preserve_native_missing": true,
+        "category_columns_for_manifest": false
+      },
+      "input_shape": [
+        111,
+        353
+      ],
+      "input_missing_values": 11864,
+      "dropped_columns": [],
+      "encoding": {
+        "method": "ordinal",
+        "categorical_columns": [
+          "CAT_1",
+          "CAT_2",
+          "CAT_3",
+          "CAT_4",
+          "CAT_5",
+          "CAT_6",
+          "AA_1",
+          "AA_2"
+        ],
+        "mappings": {
+          "CAT_1": {
+            "AFR": 0,
+            "AMR": 1,
+            "EAS": 2,
+            "EAS&EUR": 3,
+            "EAS&EUR&SAS&gnomADe_ASJ&gnomADe_FIN&gnomADg_AMI&gnomADg_ASJ&gnomADg_EAS&gnomADg_FIN&gnomADg_MID&gnomADg_SAS": 4,
+            "EAS&SAS": 5,
+            "EUR": 6,
+            "SAS": 7,
+            "__MISSING__": 8,
+            "gnomADe_AFR": 9,
+            "gnomADe_AFR&gnomADe_AMR&gnomADe_ASJ&gnomADe_EAS&gnomADe_FIN&gnomADe_MID&gnomADe_NFE&gnomADe_REMAINING&gnomADe_SAS": 10,
+            "gnomADe_AMR": 11,
+            "gnomADe_ASJ": 12,
+            "gnomADe_EAS": 13,
+            "gnomADe_FIN": 14,
+            "gnomADe_MID": 15,
+            "gnomADe_NFE": 16,
+            "gnomADe_NFE&gnomADg_NFE": 17,
+            "gnomADe_REMAINING": 18,
+            "gnomADe_SAS": 19,
+            "gnomADg_AFR": 20,
+            "gnomADg_AFR&gnomADg_AMI&gnomADg_AMR&gnomADg_ASJ&gnomADg_EAS&gnomADg_FIN&gnomADg_MID&gnomADg_NFE&gnomADg_REMAINING&gnomADg_SAS": 21,
+            "gnomADg_AMI": 22,
+            "gnomADg_AMR": 23,
+            "gnomADg_ASJ": 24,
+            "gnomADg_EAS": 25,
+            "gnomADg_FIN": 26,
+            "gnomADg_MID": 27,
+            "gnomADg_NFE": 28,
+            "gnomADg_REMAINING": 29,
+            "gnomADg_SAS": 30
+          },
+          "CAT_2": {
+            "AllofUs_AFR": 0,
+            "AllofUs_AMR": 1,
+            "AllofUs_EAS": 2,
+            "AllofUs_EUR": 3,
+            "AllofUs_MID": 4,
+            "AllofUs_OTH": 5,
+            "AllofUs_SAS": 6,
+            "__MISSING__": 7
+          },
+          "CAT_3": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_4": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_5": {
+            "./.": 0,
+            "A/A": 1,
+            "C/C": 2,
+            "G/G": 3,
+            "T/T": 4,
+            "__MISSING__": 5
+          },
+          "CAT_6": {
+            "__MISSING__": 0,
+            "decoy&segdup": 1,
+            "lcr": 2,
+            "segdup": 3
+          },
+          "AA_1": {
+            "A": 0,
+            "AG": 1,
+            "C": 2,
+            "CG": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+            "I": 9,
+            "K": 10,
+            "L": 11,
+            "M": 12,
+            "N": 13,
+            "P": 14,
+            "Q": 15,
+            "R": 16,
+            "S": 17,
+            "SV": 18,
+            "T": 19,
+            "TH": 20,
+            "V": 21,
+            "W": 22,
+            "Y": 23,
+            "__MISSING__": 24
+          },
+          "AA_2": {
+            "*": 0,
+            "A": 1,
+            "AS": 2,
+            "C": 3,
+            "D": 4,
+            "E": 5,
+            "F": 6,
+            "G": 7,
+            "H": 8,
+            "I": 9,
+            "K": 10,
+            "L": 11,
+            "M": 12,
+            "N": 13,
+            "P": 14,
+            "PN": 15,
+            "Q": 16,
+            "R": 17,
+            "RI": 18,
+            "S": 19,
+            "SD": 20,
+            "T": 21,
+            "V": 22,
+            "W": 23,
+            "Y": 24,
+            "__MISSING__": 25
+          }
+        }
+      },
+      "imputer": {
+        "method": "none"
+      },
+      "scaler": {
+        "method": "none"
+      },
+      "output_shape": [
+        111,
+        353
+      ],
+      "output_missing_values": 11702,
+      "label_counts": {
+        "1": 90,
+        "0": 21
+      },
+      "variant_id_present": true,
+      "label_present": true,
+      "category_columns": [],
+      "csv": "/Users/mahmudselmansahin/Documents/Codex/2026-05-21/files-mentioned-by-the-user-2026/ABLASYON_CALISMASI/MODELLER/XGBOOST/Ordinal_Encoding/Eksik_Veri_Korundu/CFTR_xgboost_ordinal_missing_native.csv"
+    }
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "svm",
+    "name": "svm_robust_knn",
+    "encoding": "onehot",
+    "imputer": "knn",
+    "scaler": "robust"
+  }
+}

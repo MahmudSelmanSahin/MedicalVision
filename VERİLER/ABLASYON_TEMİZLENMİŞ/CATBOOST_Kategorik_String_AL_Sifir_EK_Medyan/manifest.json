@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "catboost",
+    "name": "catboost_al_zero",
+    "encoding": "none",
+    "imputer": "al_zero",
+    "scaler": "none"
+  }
+}

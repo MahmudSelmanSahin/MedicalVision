@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "adaboost",
+    "name": "adaboost_onehot_median",
+    "encoding": "onehot",
+    "imputer": "median",
+    "scaler": "none"
+  }
+}

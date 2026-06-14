@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "lightgbm",
+    "name": "lightgbm_median",
+    "encoding": "none",
+    "imputer": "median",
+    "scaler": "none"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "scenario": {
+    "model": "tabnet",
+    "name": "tabnet_minmax_knn",
+    "encoding": "ordinal",
+    "imputer": "knn",
+    "scaler": "minmax"
+  }
+}
