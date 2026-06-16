@@ -1,7 +1,7 @@
 # MedicalVision — Süreç Raporu
 **Proje:** TEKNOFEST 2026 Sağlıkta Yapay Zeka — Missense Varyant Sınıflandırması  
 **Deadline:** 29 Haziran 2026, 17:00  
-**Son güncelleme:** 14 Haziran 2026
+**Son güncelleme:** 16 Haziran 2026
 
 ---
 
@@ -377,7 +377,67 @@ Script: `KODLAR/ABLASYON_CSV_SCRIPTLERI/build_ablation_temiz.py`
 
 ---
 
-## 12. Referanslar (NotebookLM onaylı)
+## 12. Panel Bazlı Özellik Analizi ve Hata Analizi
+
+**Tarih:** 16 Haziran 2026  
+**Branch:** `develop_selman_combined`  
+**Çıktılar:** `BELGELER/OZELLIK_ANALIZI/` (6 grafik + CSV)
+
+### 12.1 TEMİZLENMİŞ Veride Gözlemlenen MCC Düşüşleri
+
+| Panel | Model | Orijinal Ablasyon | Temiz Ablasyon | Δ MCC | Açıklama |
+|-------|-------|------------------:|---------------:|------:|----------|
+| CFTR | CatBoost Combined→Ablasyon | 0.504 | **0.673** | +0.169 | Temiz ablasyon en iyi; combined düştü |
+| CFTR | TabPFN Combined | 0.504 | 0.395 | -0.109 | Temizleme zarar verdi |
+| KANSER | CatBoost Combined | **0.756** | 0.725 | -0.031 | Küçük düşüş |
+| PAH | Her ikisi | 0.518→0.584 | 0.446→0.518 | -0.066 | Orijinal combined kazanıyor |
+
+### 12.2 CFTR Düşüşünün Kök Nedeni (NotebookLM + Analiz)
+
+**3 katmanlı açıklama:**
+
+1. **Alt Popülasyon Sinyali Kaybı:** Spearman |r|≥0.80 eliminasyonu, CFTR'nin kurucu mutasyon sinyalini taşıyan `AL_` kolonlarını sildi. CFTR mutasyonları Avrupa kökenli popülasyonlarda yoğunlaşır; bu popülasyona özgü `AL_` kolonları, global frekans kolonuyla yüksek korelasyon gösterdiği için greedy eleme ile silindi (Top 30'dan 10 özellik yok edildi: `AL_327`, `AL_298`, `AL_106`, `AL_302`, `AL_58`...).
+
+2. **Küçük Veri Hassasiyeti:** CFTR'de sadece 9 benign örnek var. Test setinde yalnızca 2 ek hatalı tahmin MCC'yi %15-20 düşürmeye yeterli.
+
+3. **CatBoost/TabPFN Doğrusal Olmayan Etkileşim Kaybı:** r=0.82 korelasyonlu iki `AL_` kolonu arasındaki rezidüel fark, model için kritik non-lineer karar sınırı oluşturuyordu. Tek kolon bırakılınca bu bilgi tamamen kayboldu.
+
+**Sonuç:** CFTR için Spearman eşiği |r|≥0.80 çok agresif. Panel bazlı daha esnek eşik (örn. |r|≥0.90) araştırılabilir.
+
+### 12.3 Panel Bazlı Kritik Özellikler (NotebookLM + CatBoost Embedded)
+
+| Panel | Birincil Sinyal | İkincil Sinyal | Popülasyon Sinyali |
+|-------|----------------|----------------|-------------------|
+| **CFTR** | CADD, SIFT | ALT_MW, ALT_Hydro, ALT_pI | GroupMax FAF frequency |
+| **PAH** | PhyloP (1. sıra) | CADD, Delta_MW | Allele Number Middle Eastern |
+| **KANSER** | CAT_1 (pop. grubu), AA_1/AA_2 | AL_ kombinasyonları | Kurucu mutasyon AL_ kolonları |
+| **MASTER** | EK_7, EK_9, EK_2, EK_4 | AL_26, AL_7 | Genel AL_ profili |
+
+**Biyolojik yorum:**
+- CFTR: İyon kanalı yapısı → fizikokimyasal değişimler belirleyici, evrimsel korunmuşluk (PhyloP) 7. sıraya geriliyor
+- PAH: Katalitik enzim → evrimsel baskı çok güçlü, PhyloP 1. sırada
+- KANSER: Kurucu mutasyonlar → popülasyon frekansları ve genotip kodları kritik
+- MASTER: Genel genomik imza → EK_ (evrimsel) + AL_ (popülasyon) dengesi
+
+### 12.4 Üretilen Görsel Belgeler
+
+| Dosya | İçerik |
+|-------|--------|
+| `01_panel_feature_importance.png` | 4 panel × Top 20 özellik (orijinal vs temiz, silinenleri kırmızı) |
+| `02_spearman_heatmap.png` | Spearman korelasyon haritası, |r|≥0.80 bölgeler sarı çerçeveli |
+| `03_panel_feature_overlap.png` | Paneller arası Jaccard benzerlik matrisi |
+| `04_cftr_confusion_comparison.png` | CFTR: orijinal vs temizlenmiş confusion matrix yan yana |
+| `05_eliminated_features.png` | Silinen özellik sayısı + toplam önem kaybı |
+| `06_mcc_panel_summary.png` | 4 yaklaşım × 4 panel MCC özet grafik |
+| `feature_importance_table.csv` | Tüm paneller için top 20 özellik + in_temiz bayrağı |
+
+### 12.5 Önerilen Sonraki Adım
+
+CFTR paneli için panel-özel Spearman eşiği deneyi: `|r| ≥ 0.90` ile yeni TEMİZLENMİŞ CSV üretip CatBoost ablasyon tekrar çalıştırılabilir. Bu ayrı bir branch olmalı (`develop_selman_cftr_spearman`).
+
+---
+
+## 13. Referanslar (NotebookLM onaylı)
 
 1. Karczewski vd. (2020). The mutational constraint spectrum quantified from variation in 141,456 humans. *Nature*, 581, 434–443.
 2. Kircher vd. (2014). A general framework for estimating the relative pathogenicity of human genetic variants. *Nature Genetics*, 46, 310–315.
