@@ -1,9 +1,9 @@
 model,panel,deney,config,mcc,pr_auc,f1,pozitif
-CatBoost,MASTER,Ablasyon (TEMİZLENMİŞ),Eksik_Veri_Korundu,0.573,0.9408,0.8808,True
+CatBoost,MASTER,FS (TEMİZLENMİŞ),WRAPPER_RFE(k=50),0.577,0.8724,0.8802,True
 CatBoost,KANSER,Ablasyon (TEMİZLENMİŞ),KNNImputer,0.7557,0.9061,0.9298,True
-CatBoost,PAH,Ablasyon (ORİJİNAL),Eksik_Veri_Korundu,0.5184,0.9059,0.9323,True
+CatBoost,PAH,FS (ORİJİNAL),ANOVA+RFE+EMBEDDED(k=30),0.5184,0.8213,0.9323,True
 CatBoost,CFTR,Ablasyon (TEMİZLENMİŞ),AL_Sifir_EK_Medyan,0.6726,0.9234,0.95,True
-TabPFN,MASTER,Ablasyon (TEMİZLENMİŞ),MinMaxScaler_Medyan,0.5716,0.9248,0.8991,True
-TabPFN,KANSER,Feature Selection (TEMİZLENMİŞ),FILTER_ANOVA+WRAPPER_RFE+EMBEDDED,0.762,0.8762,,True
-TabPFN,PAH,Ablasyon (TEMİZLENMİŞ),Eksik_Veri_Medyan,0.4458,0.9392,0.9254,True
-TabPFN,CFTR,QT + BaggingClassifier,QT_Bagg_mf30,0.6726,0.995,,True
+TabPFN,MASTER,Ablasyon (TEMİZLENMİŞ),factory_TEMİZ+medyan+MinMaxScaler,0.5716,0.8498,0.8991,True
+TabPFN,KANSER,FS (TEMİZLENMİŞ),yerel_ordinal+ANOVA+RFE+EMBEDDED(k=51),0.7246,0.8634,0.9217,True
+TabPFN,PAH,Ablasyon (ORİJİNAL),drop_high_missing+factory_ORI+mean,0.5184,0.7246,0.9323,True
+TabPFN,CFTR,QT + BaggingClassifier,factory_TEMİZ+AL_Sifir_EK_Medyan+QT+Bagging(n=10),0.6726,0.9737,0.95,True

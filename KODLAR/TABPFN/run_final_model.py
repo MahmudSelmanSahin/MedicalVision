@@ -4,12 +4,10 @@ TabPFN — Final Model (Ham Veriden En İyi Konfigürasyon)
 Her panel için ham veriden başlayıp en iyi konfigürasyonu çalıştırır.
 
 En iyi konfigürasyonlar:
-  MASTER : TEMİZLENMİŞ + OrdinalEncode + MinMaxScaler + Medyan → TabPFN(n=1)
-  KANSER : TEMİZLENMİŞ + OrdinalEncode + AL_Sifir_EK_Medyan
-           + FILTER_ANOVA∪WRAPPER_RFE∪EMBEDDED (k=30 her biri) → TabPFN(n=1)
-  PAH    : TEMİZLENMİŞ + OrdinalEncode + Medyan → TabPFN(n=1)
-  CFTR   : TEMİZLENMİŞ + OrdinalEncode + AL_Sifir_EK_Medyan
-           + QuantileTransformer + BaggingClassifier(TabPFN, n=10, max_feat=0.3)
+  MASTER : TEMİZLENMİŞ + factory_ordinal(TEMİZ) + medyan + MinMaxScaler → 0.572
+  KANSER : TEMİZLENMİŞ + yerel_ordinal + medyan + ANOVA+RFE+EMBEDDED(k=30) → 0.725
+  PAH    : ORİJİNAL  + drop_high_missing + factory_ordinal(ORI) + mean → 0.518
+  CFTR   : TEMİZLENMİŞ + factory_ordinal(TEMİZ) + AL_Sifir_EK_Medyan + QT+Bagging(n=10,mf=0.3) → 0.673
 
 Çalıştırma:
   python run_final_model.py
@@ -45,12 +43,16 @@ from ablation_csv_factory import build_category_levels, apply_ordinal_encoding
 
 ROOT       = Path("/Users/mahmudselmansahin/Teknofest")
 DATA_TEMIZ = ROOT / "VERİLER" / "TEMİZLENMİŞ"
+DATA_ORI   = ROOT / "VERİLER" / "ORİJİNAL"
 OUT_DIR    = MODELS_ROOT / "TabPFN" / "FINAL"
 
 AL_PREFIX = "AL_"
 EK_PREFIX = "EK_"
 EK_EXTRAS  = {"BLOSUM62", "DELTA_HIDRO", "SNV_PATHWAY_COUNT"}
-N_FS       = 30  # her feature selection yöntemi başına k
+N_FS       = 30          # her FS yöntemi başına k
+HIGH_MISS  = 0.90        # drop_high_missing eşiği (factory ile aynı)
+
+PANELS = ["MASTER", "KANSER", "PAH", "CFTR"]
 
 TABPFN_BASE = dict(
     n_estimators=1,
@@ -63,15 +65,26 @@ TABPFN_BASE = dict(
 
 
 # ---------------------------------------------------------------------------
-# Yükleme & genel ön işleme
+# Encoder inşası
 # ---------------------------------------------------------------------------
 
-PANELS = ["MASTER", "KANSER", "PAH", "CFTR"]
+def build_encoder_temiz() -> dict:
+    """TEMİZLENMİŞ veriden ortak kategori seviyeleri (CFTR için)."""
+    return build_category_levels(
+        {p: pd.read_csv(DATA_TEMIZ / f"YARISMA_TRAIN_{p}_temiz.csv") for p in PANELS}
+    )
 
 
-def load_raw(panel: str) -> pd.DataFrame:
-    return pd.read_csv(DATA_TEMIZ / f"YARISMA_TRAIN_{panel}_temiz.csv")
+def build_encoder_ori() -> dict:
+    """ORİJİNAL veriden ortak kategori seviyeleri (MASTER, PAH için)."""
+    return build_category_levels(
+        {p: pd.read_csv(DATA_ORI / f"YARISMA_TRAIN_{p}.csv") for p in PANELS}
+    )
 
+
+# ---------------------------------------------------------------------------
+# Yükleme & genel yardımcılar
+# ---------------------------------------------------------------------------
 
 def get_xy(df: pd.DataFrame):
     y = df[LABEL_COL].astype(int)
@@ -79,22 +92,23 @@ def get_xy(df: pd.DataFrame):
     return x, y
 
 
-def build_shared_encoder() -> dict:
-    """Tüm panellerin ham verisinden ortak kategori seviyelerini oluşturur."""
-    all_dfs = {p: pd.read_csv(DATA_TEMIZ / f"YARISMA_TRAIN_{p}_temiz.csv")
-               for p in PANELS}
-    return build_category_levels(all_dfs)
-
-
-def factory_ordinal_encode(df: pd.DataFrame, cat_levels: dict) -> pd.DataFrame:
-    """Factory'nin tutarlı ordinal encoding'ini uygular."""
+def factory_encode(df: pd.DataFrame, cat_levels: dict) -> pd.DataFrame:
     encoded, _ = apply_ordinal_encoding(df, cat_levels)
-    # ID ve Label sütunlarını koru; diğerleri artık numerik
     return encoded
+
+
+def drop_high_missing(x: pd.DataFrame) -> pd.DataFrame:
+    """Ham veriden ≥HIGH_MISS NaN oranına sahip sütunları atar."""
+    drop_cols = [c for c in x.columns if x[c].isna().mean() >= HIGH_MISS]
+    return x.drop(columns=drop_cols)
 
 
 def fill_medyan(x: pd.DataFrame) -> pd.DataFrame:
     return x.fillna(x.median())
+
+
+def fill_mean(x: pd.DataFrame) -> pd.DataFrame:
+    return x.fillna(x.mean())
 
 
 def fill_al_sifir_ek_medyan(x: pd.DataFrame) -> pd.DataFrame:
@@ -113,8 +127,23 @@ def to_float32(x: pd.DataFrame) -> np.ndarray:
     return x.apply(pd.to_numeric, errors="coerce").fillna(0).values.astype(np.float32)
 
 
+def local_ordinal_fill(x: pd.DataFrame) -> tuple[np.ndarray, list[str]]:
+    """Yerel pd.Categorical kodlama + medyan doldurma → numpy (KANSER için)."""
+    X = x.copy()
+    for c in X.columns:
+        if pd.api.types.is_object_dtype(X[c]) or pd.api.types.is_string_dtype(X[c]):
+            X[c] = pd.Categorical(X[c].fillna("__MISSING__").astype(str)).codes.astype(float)
+        else:
+            X[c] = pd.to_numeric(X[c], errors="coerce")
+    for c in X.columns:
+        if X[c].isna().any():
+            med = X[c].median()
+            X[c] = X[c].fillna(0.0 if pd.isna(med) else med)
+    return X.values.astype(np.float32), list(X.columns)
+
+
 # ---------------------------------------------------------------------------
-# Feature selection (KANSER için)
+# Özellik seçimi yardımcıları
 # ---------------------------------------------------------------------------
 
 def union_features(*lists: list[str]) -> list[str]:
@@ -139,7 +168,7 @@ def select_rfe(X: np.ndarray, y: np.ndarray, names: list[str]) -> list[str]:
         random_state=RANDOM_STATE, n_jobs=-1,
     )
     step = max(1, X.shape[1] // 15)
-    rfe  = RFE(proxy, n_features_to_select=min(N_FS, X.shape[1]), step=step)
+    rfe = RFE(proxy, n_features_to_select=min(N_FS, X.shape[1]), step=step)
     rfe.fit(X, y)
     return [names[i] for i, s in enumerate(rfe.support_) if s]
 
@@ -174,9 +203,10 @@ def compute(y_true, y_pred, y_prob) -> dict:
 # Panel akışları
 # ---------------------------------------------------------------------------
 
-def run_master(cat_levels: dict) -> tuple:
-    df = load_raw("MASTER")
-    df = factory_ordinal_encode(df, cat_levels)
+def run_master(cat_levels_temiz: dict) -> dict:
+    """TEMİZLENMİŞ + factory_ordinal(TEMİZ) + medyan + MinMaxScaler → 0.572."""
+    df = pd.read_csv(DATA_TEMIZ / "YARISMA_TRAIN_MASTER_temiz.csv")
+    df = factory_encode(df, cat_levels_temiz)
     x, y = get_xy(df)
     x = fill_medyan(x)
     arr = MinMaxScaler().fit_transform(to_float32(x)).astype(np.float32)
@@ -184,24 +214,26 @@ def run_master(cat_levels: dict) -> tuple:
     x_tr, x_te, y_tr, y_te = split_data(xdf, y)
     model = TabPFNClassifier(**TABPFN_BASE)
     model.fit(x_tr, y_tr)
-    return ("MASTER", "Medyan+MinMaxScaler", x.shape[1],
-            y_te, model.predict(x_te).astype(int), model.predict_proba(x_te)[:, 1])
+    m = compute(y_te.values, model.predict(x_te).astype(int), model.predict_proba(x_te)[:, 1])
+    print(f"  MASTER   [TEMİZLENMİŞ+factory_TEMİZ+medyan+MinMaxScaler]")
+    print(f"           MCC={m['mcc']:.4f}  F1={m['f1']:.4f}  PR-AUC={m['pr_auc']:.4f}  "
+          f"TP={m['tp']} FP={m['fp']} TN={m['tn']} FN={m['fn']}")
+    return {"panel": "MASTER", "config": "TEMİZLENMİŞ+factory_TEMİZ+medyan+MinMaxScaler",
+            "n_feat": x.shape[1], **m}
 
 
-def run_kanser(cat_levels: dict) -> tuple:
-    df = load_raw("KANSER")
-    df = factory_ordinal_encode(df, cat_levels)
+def run_kanser() -> dict:
+    """TEMİZLENMİŞ + yerel_ordinal + medyan + ANOVA+RFE+EMBEDDED(k=30)."""
+    df = pd.read_csv(DATA_TEMIZ / "YARISMA_TRAIN_KANSER_temiz.csv")
     x, y = get_xy(df)
-    x = fill_medyan(x)
-    X = to_float32(x)
-    names = list(x.columns)
+    X, names = local_ordinal_fill(x)
 
     fa  = select_anova(X, y.values, names)
     wr  = select_rfe(X, y.values, names)
     em  = select_embedded(X, y.values, names)
     sel = union_features(fa, wr, em)
     idx = [names.index(f) for f in sel]
-    print(f"    KANSER feature selection: {len(sel)} feature seçildi")
+    print(f"  KANSER   [TEMİZLENMİŞ+yerel_ordinal+medyan+ANOVA+RFE+EMBEDDED(k={len(sel)})]")
 
     X_sel = X[:, idx].astype(np.float32)
     x_tr, x_te, y_tr, y_te = split_data(pd.DataFrame(X_sel, columns=sel), y)
@@ -209,26 +241,43 @@ def run_kanser(cat_levels: dict) -> tuple:
     model.fit(x_tr, y_tr)
     y_pred = model.predict(x_te).astype(int)
     y_prob = model.predict_proba(x_te)[:, 1]
-    return ("KANSER", f"Medyan+FS(ANOVA+RFE+EMBEDDED,k={len(sel)})",
-            len(sel), y_te, y_pred, y_prob)
+    m = compute(y_te.values, y_pred, y_prob)
+    print(f"           MCC={m['mcc']:.4f}  F1={m['f1']:.4f}  PR-AUC={m['pr_auc']:.4f}  "
+          f"TP={m['tp']} FP={m['fp']} TN={m['tn']} FN={m['fn']}")
+    return {"panel": "KANSER", "config": f"TEMİZLENMİŞ+yerel+ANOVA+RFE+EMBEDDED(k={len(sel)})",
+            "n_feat": len(sel), **m}
 
 
-def run_pah(cat_levels: dict) -> tuple:
-    df = load_raw("PAH")
-    df = factory_ordinal_encode(df, cat_levels)
-    x, y = get_xy(df)
-    x = fill_medyan(x)
-    xdf = pd.DataFrame(to_float32(x), columns=x.columns)
+def run_pah(cat_levels_ori: dict) -> dict:
+    """ORİJİNAL + drop_high_missing + factory_ordinal(ORI) + mean."""
+    df = pd.read_csv(DATA_ORI / "YARISMA_TRAIN_PAH.csv")
+    df_enc = factory_encode(df, cat_levels_ori)
+    x_raw, y = get_xy(df)           # drop_high_missing ham veriden hesaplanır
+    x_enc, _ = get_xy(df_enc)       # encoded versiyonu
+
+    # High-missing sütunları ham veriden tespit et
+    drop_cols = [c for c in x_raw.columns if x_raw[c].isna().mean() >= HIGH_MISS]
+    x_enc = x_enc.drop(columns=[c for c in drop_cols if c in x_enc.columns])
+    x_enc = fill_mean(x_enc)
+
+    xdf = pd.DataFrame(to_float32(x_enc), columns=x_enc.columns)
     x_tr, x_te, y_tr, y_te = split_data(xdf, y)
     model = TabPFNClassifier(**TABPFN_BASE)
     model.fit(x_tr, y_tr)
-    return ("PAH", "Medyan", x.shape[1],
-            y_te, model.predict(x_te).astype(int), model.predict_proba(x_te)[:, 1])
+    y_pred = model.predict(x_te).astype(int)
+    y_prob = model.predict_proba(x_te)[:, 1]
+    m = compute(y_te.values, y_pred, y_prob)
+    print(f"  PAH      [ORİJİNAL+drop_high_missing+factory_ORI+mean: {x_enc.shape[1]} özellik]")
+    print(f"           MCC={m['mcc']:.4f}  F1={m['f1']:.4f}  PR-AUC={m['pr_auc']:.4f}  "
+          f"TP={m['tp']} FP={m['fp']} TN={m['tn']} FN={m['fn']}")
+    return {"panel": "PAH", "config": f"ORİJİNAL+drop_high+factory_ORI+mean",
+            "n_feat": x_enc.shape[1], **m}
 
 
-def run_cftr(cat_levels: dict) -> tuple:
-    df = load_raw("CFTR")
-    df = factory_ordinal_encode(df, cat_levels)
+def run_cftr(cat_levels_temiz: dict) -> dict:
+    """TEMİZLENMİŞ + factory_ordinal(TEMİZ) + AL_Sifir_EK_Medyan + QT + Bagging(n=10,mf=0.3)."""
+    df = pd.read_csv(DATA_TEMIZ / "YARISMA_TRAIN_CFTR_temiz.csv")
+    df = factory_encode(df, cat_levels_temiz)
     x, y = get_xy(df)
     x = fill_al_sifir_ek_medyan(x)
     X = to_float32(x)
@@ -251,8 +300,12 @@ def run_cftr(cat_levels: dict) -> tuple:
     bag.fit(x_tr_qt, y_tr)
     y_pred = bag.predict(x_te_qt).astype(int)
     y_prob = bag.predict_proba(x_te_qt)[:, 1]
-    return ("CFTR", "AL_Sifir_EK_Medyan+QT+Bagging(n=10,mf=0.3)", x.shape[1],
-            y_te, y_pred, y_prob)
+    m = compute(y_te.values, y_pred, y_prob)
+    print(f"  CFTR     [TEMİZLENMİŞ+factory_TEMİZ+AL_Sifir_EK_Medyan+QT+Bagging(n=10,mf=0.3)]")
+    print(f"           MCC={m['mcc']:.4f}  F1={m['f1']:.4f}  PR-AUC={m['pr_auc']:.4f}  "
+          f"TP={m['tp']} FP={m['fp']} TN={m['tn']} FN={m['fn']}")
+    return {"panel": "CFTR", "config": "TEMİZLENMİŞ+factory_TEMİZ+AL_Sifir_EK_Medyan+QT+Bagging(n=10,mf=0.3)",
+            "n_feat": x.shape[1], **m}
 
 
 # ---------------------------------------------------------------------------
@@ -262,22 +315,19 @@ def run_cftr(cat_levels: dict) -> tuple:
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     print("TabPFN Final Model\n")
-    print("Ortak kategori seviyeleri oluşturuluyor...")
-    cat_levels = build_shared_encoder()
-    rows = []
 
-    for panel_fn in [
-        lambda: run_master(cat_levels),
-        lambda: run_kanser(cat_levels),
-        lambda: run_pah(cat_levels),
-        lambda: run_cftr(cat_levels),
-    ]:
-        panel, config, n_feat, y_te, y_pred, y_prob = panel_fn()
-        m = compute(y_te.values, y_pred, y_prob)
-        print(f"  {panel:8s} [{config[:45]}]")
-        print(f"           MCC={m['mcc']:.4f}  F1={m['f1']:.4f}  PR-AUC={m['pr_auc']:.4f}  "
-              f"TP={m['tp']} FP={m['fp']} TN={m['tn']} FN={m['fn']}")
-        rows.append({"panel": panel, "config": config, "n_feat": n_feat, **m})
+    print("Ortak kategori seviyeleri oluşturuluyor (TEMİZLENMİŞ)...")
+    cat_levels_temiz = build_encoder_temiz()
+    print("Ortak kategori seviyeleri oluşturuluyor (ORİJİNAL)...")
+    cat_levels_ori = build_encoder_ori()
+    print()
+
+    rows = [
+        run_master(cat_levels_temiz),
+        run_kanser(),
+        run_pah(cat_levels_ori),
+        run_cftr(cat_levels_temiz),
+    ]
 
     df = pd.DataFrame(rows)
     out = OUT_DIR / "TabPFN_final_results.csv"
