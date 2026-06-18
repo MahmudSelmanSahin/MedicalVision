@@ -1,0 +1,9 @@
+model,panel,deney,config,mcc,pr_auc,f1,pozitif
+CatBoost,MASTER,Ablasyon (TEMİZLENMİŞ),Eksik_Veri_Korundu,0.573,0.9408,0.8808,True
+CatBoost,KANSER,Ablasyon (TEMİZLENMİŞ),KNNImputer,0.7557,0.9061,0.9298,True
+CatBoost,PAH,Ablasyon (ORİJİNAL),Eksik_Veri_Korundu,0.5184,0.9059,0.9323,True
+CatBoost,CFTR,Ablasyon (TEMİZLENMİŞ),AL_Sifir_EK_Medyan,0.6726,0.9234,0.95,True
+TabPFN,MASTER,Ablasyon (TEMİZLENMİŞ),MinMaxScaler_Medyan,0.5716,0.9248,0.8991,True
+TabPFN,KANSER,Feature Selection (TEMİZLENMİŞ),FILTER_ANOVA+WRAPPER_RFE+EMBEDDED,0.762,0.8762,,True
+TabPFN,PAH,Ablasyon (TEMİZLENMİŞ),Eksik_Veri_Medyan,0.4458,0.9392,0.9254,True
+TabPFN,CFTR,QT + BaggingClassifier,QT_Bagg_mf30,0.6726,0.995,,True
