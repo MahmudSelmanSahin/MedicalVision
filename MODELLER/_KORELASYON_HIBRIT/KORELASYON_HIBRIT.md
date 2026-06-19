@@ -4,7 +4,7 @@ Bu belge, projede uygulanan **hibrit korelasyon-tabanlı sütun silme** yöntemi
 amacını, çalışma mantığını, akış şemasını ve sonuçlarını özetler.
 
 İlgili kod: [`KODLAR/ORTAK/run_hybrid_corr_drop.py`](../../KODLAR/ORTAK/run_hybrid_corr_drop.py)
-Çıktılar: `hibrit_korelasyon_sonuclar.csv`, `silinen_ozellikler.json`
+Çıktılar: `hibrit_korelasyon_sonuclar_XGBOOST.csv`, `silinen_ozellikler.json`
 
 ---
 
@@ -167,7 +167,7 @@ Hibrit + sabit silme uygulanmış, **ham değerleri koruyan** panel CSV'leri:
 ```bash
 python KODLAR/ORTAK/run_hybrid_corr_drop.py
 # Çıktılar:
-#   MODELLER/_KORELASYON_HIBRIT/hibrit_korelasyon_sonuclar.csv   (metrik tablo)
+#   MODELLER/_KORELASYON_HIBRIT/hibrit_korelasyon_sonuclar_XGBOOST.csv   (metrik tablo)
 #   MODELLER/_KORELASYON_HIBRIT/silinen_ozellikler.json          (silinen sütunlar)
 #   VERİLER/HIBRIT_TEMIZ/YARISMA_TRAIN_{PANEL}_hibrit.csv         (temiz paneller)
 ```

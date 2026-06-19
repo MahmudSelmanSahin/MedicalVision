@@ -17,7 +17,7 @@ Hibrit MASTER + panel:
     Aksi halde (A panelde redundant değil YA DA panel için daha bilgilendirici)
     A KORUNUR — bu, MASTER-bazlı global silmenin PAH'ı düşürmesini engeller.
 
-Çıktı: MODELLER/_KORELASYON_HIBRIT/hibrit_korelasyon_sonuclar.csv
+Çıktı: MODELLER/_KORELASYON_HIBRIT/hibrit_korelasyon_sonuclar_XGBOOST.csv
        + silinen özellik listeleri (json)
 """
 from __future__ import annotations
@@ -191,7 +191,7 @@ def main():
         print("-" * 70)
 
     res = pd.DataFrame(rows)
-    res.to_csv(OUT_DIR / "hibrit_korelasyon_sonuclar.csv", index=False)
+    res.to_csv(OUT_DIR / "hibrit_korelasyon_sonuclar_XGBOOST.csv", index=False)
     with open(OUT_DIR / "silinen_ozellikler.json", "w", encoding="utf-8") as f:
         json.dump(drop_log, f, ensure_ascii=False, indent=2)
     print(f"\n[OK] Kaydedildi: {OUT_DIR}")
