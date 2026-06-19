@@ -35,6 +35,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = ROOT / "VERİLER" / "ORİJİNAL"
 FILE_TMPL = "YARISMA_TRAIN_{panel}.csv"
 OUT_DIR = ROOT / "MODELLER" / "_KORELASYON_HIBRIT"
+CLEAN_DIR = ROOT / "VERİLER" / "HIBRIT_TEMIZ"   # hibrit+sabit ile temizlenmiş paneller
 PANELS = ["MASTER", "KANSER", "PAH", "CFTR"]
 ID_COL, LABEL_COL, SEED = "Variant_ID", "Label", 42
 T_CORR = 0.85          # yüksek korelasyon eşiği (Spearman, mutlak)
@@ -112,6 +113,7 @@ def eval_xgb(X: pd.DataFrame, y: pd.Series, feats: list[str]) -> dict:
 
 def main():
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    CLEAN_DIR.mkdir(parents=True, exist_ok=True)
 
     # --- Panelleri yükle ---
     data = {}
@@ -135,7 +137,8 @@ def main():
     # --- Sonuçlar ---
     rows = []
     drop_log = {"params": {"T_corr": T_CORR, "method": CORR_METHOD},
-                "master_global_drop": master_drop, "hybrid_drop": {}}
+                "master_global_drop": master_drop, "hybrid_drop": {},
+                "constant_cols": {}, "hybrid_plus_constant_drop": {}}
 
     for p in PANELS:
         X, y, _ = data[p]
@@ -159,17 +162,32 @@ def main():
             refined_drop.append(A)                  # redundant + komşusu kadar/daha bilgisiz -> SİL
         drop_log["hybrid_drop"][p] = refined_drop
 
+        # --- 3) Panel-bazlı sabit (sıfır varyans) sütun silme ---
+        const_cols = [c for c in all_feats if X[c].nunique() <= 1]
+        drop_log["constant_cols"][p] = const_cols
+        # Hibrit + sabit = korelasyon rafine silme ∪ panel sabit sütunlar
+        hybrid_plus = sorted(set(refined_drop) | set(const_cols))
+        drop_log["hybrid_plus_constant_drop"][p] = hybrid_plus
+
+        # Temizlenmiş ham CSV'yi yaz (ham değerler korunur, sadece sütun düşürülür)
+        raw = pd.read_csv(DATA_DIR / FILE_TMPL.format(panel=p))
+        raw.drop(columns=[c for c in hybrid_plus if c in raw.columns]).to_csv(
+            CLEAN_DIR / f"YARISMA_TRAIN_{p}_hibrit.csv", index=False, encoding="utf-8")
+
         feats_full = all_feats
         feats_global = [f for f in all_feats if f not in master_drop]
         feats_hybrid = [f for f in all_feats if f not in refined_drop]
+        feats_hyb_const = [f for f in all_feats if f not in set(hybrid_plus)]
 
         for name, feats in [("(a) Tum ozellikler", feats_full),
                             ("(b) MASTER-global silme", feats_global),
-                            ("(c) Hibrit silme", feats_hybrid)]:
+                            ("(c) Hibrit silme", feats_hybrid),
+                            ("(d) Hibrit + sabit-sutun", feats_hyb_const)]:
             m = eval_xgb(X, y, feats)
             rows.append({"panel": p, "senaryo": name, **m})
             print(f"{p:7} {name:26} feat={m['n_features']:3}  "
                   f"MCC={m['mcc']:.3f}  F1m={m['f1_macro']:.3f}  ROC={m['roc_auc']:.3f}")
+        print(f"        -> sabit sutun: {len(const_cols)}  |  hibrit+sabit toplam silme: {len(hybrid_plus)}")
         print("-" * 70)
 
     res = pd.DataFrame(rows)

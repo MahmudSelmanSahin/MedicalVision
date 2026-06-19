@@ -111,20 +111,63 @@ içinde redundant değiller. Bu yüzden hibrit, bu panellerde **hiçbirini silme
 | PAH | 351 | 0.2561 | 0.5976 | 0.7411 | **+0.010** |
 | CFTR | 351 | 0.4990 | 0.7208 | 0.8106 | **+0.042** |
 
-## 7. Çıkarım
+## 7. Ek Adım — Panel-Bazlı Sabit (Sıfır Varyans) Sütun Silme
+
+Küçük panellerde korelasyon-redundansı yoktur (panel-içi max |corr| 0.69–0.77),
+bu yüzden hibrit silme orada özellik sayısını değiştirmez. Asıl ölü ağırlık,
+**panelin içinde tüm satırlarda aynı değeri taşıyan sabit sütunlardır** — o panel
+için sıfır bilgi. Bunlar panel-bazlı silinir.
+
+> İlginç bağlantı: MASTER'da "kopya" işaretlenen 6 özellik (AL_200, AL_204,
+> AL_216, AL_227, AL_240, AL_267) küçük panellerin içinde **zaten sabittir** —
+> bu yüzden panel korelasyonları NaN çıkıyordu.
+
+### Doğrulama — sabit sütun silme bedavadır (`colsample_bytree=1.0`)
+
+Rastgele sütun örneklemesi kapalıyken sabit sütunları silmek MCC'yi **hiç**
+değiştirmez (fark = 0.0000). `colsample=0.9`'daki küçük oynamalar yalnız örnekleme
+gürültüsüdür, bilgi kaybı değil.
+
+| Panel | Tüm (351) MCC | Sabit silinmiş MCC | Fark |
+|-------|:---:|:---:|:---:|
+| PAH | 0.2136 | 0.2136 | +0.0000 |
+| CFTR | 0.4376 | 0.4376 | +0.0000 |
+| KANSER | 0.6448 | 0.6448 | +0.0000 |
+
+### Özellik azaltımı (hibrit + sabit-sütun)
+
+| Panel | Tüm | Silinen sabit | Silinen korelasyon | **Kalan özellik** |
+|-------|:---:|:---:|:---:|:---:|
+| MASTER | 351 | 57 | 6 (hub) | **288** |
+| KANSER | 351 | 68 | 0 | **283** |
+| PAH | 351 | **91** | 0 | **260** |
+| CFTR | 351 | 69 | 0 | **282** |
+
+Silinen sabit sütunların tam listesi: `silinen_ozellikler.json` →
+`constant_cols` ve `hybrid_plus_constant_drop` anahtarları.
+
+### Temizlenmiş paneller
+
+Hibrit + sabit silme uygulanmış, **ham değerleri koruyan** panel CSV'leri:
+`VERİLER/HIBRIT_TEMIZ/YARISMA_TRAIN_{PANEL}_hibrit.csv`
+(MASTER 290, KANSER 285, PAH 262, CFTR 284 kolon — Variant_ID + özellikler + Label dahil).
+
+## 8. Çıkarım
 
 - **Global MASTER-korelasyon silme küçük panelleri düşürür** (CFTR −0.042, PAH −0.010).
 - **Hibrit hiçbir paneli düşürmez**: MASTER'da gerçek kopyaları temizler, küçük
   panellerde korelasyon tutmadığı için özellikleri korur.
+- **Sabit-sütun silme** küçük panellerde özellik sayısını anlamlı düşürür
+  (PAH 351→260) ve **performansı değiştirmez** (bedava sadeleştirme).
 - Asıl ders: korelasyon-tabanlı silme **havuzlanmış veride global yapılmamalı**;
   karar **panel-bazlı** verilmeli. Hibrit bunu otomatikleştirir.
-- Not: KANSER/MASTER farkları CV gürültüsü içinde (±0.01); tekrarlanabilir ve
-  anlamlı sinyal **CFTR'deki −0.042 düşüş** ve hibridin bunu sıfırlamasıdır.
 
-## 8. Çalıştırma
+## 9. Çalıştırma
 
 ```bash
 python KODLAR/ORTAK/run_hybrid_corr_drop.py
-# Çıktı: MODELLER/_KORELASYON_HIBRIT/hibrit_korelasyon_sonuclar.csv
-#        MODELLER/_KORELASYON_HIBRIT/silinen_ozellikler.json
+# Çıktılar:
+#   MODELLER/_KORELASYON_HIBRIT/hibrit_korelasyon_sonuclar.csv   (metrik tablo)
+#   MODELLER/_KORELASYON_HIBRIT/silinen_ozellikler.json          (silinen sütunlar)
+#   VERİLER/HIBRIT_TEMIZ/YARISMA_TRAIN_{PANEL}_hibrit.csv         (temiz paneller)
 ```
