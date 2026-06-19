@@ -1,0 +1,27 @@
+{
+  "params": {
+    "T_corr": 0.85,
+    "method": "spearman"
+  },
+  "master_global_drop": [
+    "AL_200",
+    "AL_204",
+    "AL_227",
+    "AL_240",
+    "AL_216",
+    "AL_267"
+  ],
+  "hybrid_drop": {
+    "MASTER": [
+      "AL_200",
+      "AL_204",
+      "AL_227",
+      "AL_240",
+      "AL_216",
+      "AL_267"
+    ],
+    "KANSER": [],
+    "PAH": [],
+    "CFTR": []
+  }
+}
