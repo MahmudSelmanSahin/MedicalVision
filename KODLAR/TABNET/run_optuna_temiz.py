@@ -140,7 +140,7 @@ def main():
                      "test_mcc": t_mcc, "test_f1_macro": t_f1, "test_roc_auc": t_roc, **best})
 
     pd.DataFrame(rows).to_csv(OUT_DIR / "optuna_tabnet_best.csv", index=False)
-    print(f"\n✓ Kaydedildi: {OUT_DIR}/optuna_tabnet_best.csv")
+    print(f"\n[OK] Kaydedildi: {OUT_DIR}/optuna_tabnet_best.csv")
     print("\n=== En iyi parametreler (panel başına) ===")
     for r in rows:
         bp = {k: (round(v, 4) if isinstance(v, float) else v) for k, v in r.items()
