@@ -65,10 +65,11 @@ def process_dataset(name: str, ek_scalers: list[str], missing_modes: list[str]):
     ek = io.ek_cols(df)
     print(f"  AL kolon: {len(al)}, EK kolon: {len(ek)}")
 
-    # --- AL: MinMax 0-1 (senaryolardan bagimsiz, bir kez) ---
+    # --- AL: once eksikler 0 ile doldurulur, sonra MinMax 0-1 olceklenir ---
     if al:
+        al_filled = df[al].fillna(0)
         al_scaled = pd.DataFrame(
-            MinMaxScaler().fit_transform(df[al]), columns=al, index=df.index
+            MinMaxScaler().fit_transform(al_filled), columns=al, index=df.index
         )
     else:
         al_scaled = pd.DataFrame(index=df.index)
