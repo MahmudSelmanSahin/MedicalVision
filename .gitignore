@@ -216,3 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Project data (veri dosyaları versiyon kontrolüne girmesin, klasör yapısı kalsın)
+DATA/**
+!DATA/
+!DATA/**/
+!DATA/**/.gitkeep
