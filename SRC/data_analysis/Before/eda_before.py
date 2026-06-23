@@ -60,12 +60,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[3]
 RAW_DIR = PROJECT_ROOT / "DATA" / "Raw"
 GRAPHICS_DIR = PROJECT_ROOT / "SRC" / "Result" / "Graphics" / "eda"
 
-# Veri seti -> (dosya adi, ayrac, ondalik)
+# Veri seti -> xlsx dosya adi (CSV'den XLSX'e cevrildi: EK ondalik bozulmasi giderildi)
 DATASETS = {
-    "MASTER": ("YARISMA_TRAIN_MASTER.csv", ";", ","),
-    "CFTR": ("YARISMA_TRAIN_CFTR.csv", ";", ","),
-    "KANSER": ("YARISMA_TRAIN_KANSER.csv", ",", "."),
-    "PAH": ("YARISMA_TRAIN_PAH.csv", ",", "."),
+    "MASTER": "YARISMA_TRAIN_MASTER.xlsx",
+    "CFTR": "YARISMA_TRAIN_CFTR.xlsx",
+    "KANSER": "YARISMA_TRAIN_KANSER.xlsx",
+    "PAH": "YARISMA_TRAIN_PAH.xlsx",
 }
 
 ID_COL = "Variant_ID"
@@ -96,22 +96,17 @@ def savefig(fig, out_dir: Path, name: str) -> None:
 
 
 def load_dataset(name: str) -> pd.DataFrame:
-    """Ham CSV'yi dogru ayrac/ondalik ile yukler, sayisal kolonlari coerce eder."""
-    fname, sep, dec = DATASETS[name]
-    fpath = RAW_DIR / fname
+    """Ham XLSX'i yukler, kolon turlerini icerige gore belirler."""
+    fpath = RAW_DIR / DATASETS[name]
     if not fpath.exists():
         raise FileNotFoundError(f"Veri bulunamadi: {fpath}")
 
-    # Bos string'leri NaN say
-    df = pd.read_csv(
+    df = pd.read_excel(
         fpath,
-        sep=sep,
-        decimal=dec,
         na_values=["", " ", "NA", "NaN", "nan", "null", "None"],
         keep_default_na=True,
-        low_memory=False,
     )
-    df.columns = [c.strip() for c in df.columns]
+    df.columns = [str(c).strip() for c in df.columns]
 
     # Hedefi tam sayi yap
     if TARGET in df.columns:
@@ -168,10 +163,10 @@ def analyze_structure(df, name, out_dir, report):
 
     # Ozet istatistik tablosunu kaydet
     desc = df.describe(include="all").transpose()
-    desc.to_csv(out_dir / "01_ozet_istatistik.csv", encoding="utf-8-sig")
+    desc.to_excel(out_dir / "01_ozet_istatistik.xlsx")
     if const_cols:
-        pd.Series(const_cols, name="sabit_kolon").to_csv(
-            out_dir / "01_sabit_kolonlar.csv", index=False, encoding="utf-8-sig"
+        pd.Series(const_cols, name="sabit_kolon").to_excel(
+            out_dir / "01_sabit_kolonlar.xlsx", index=False
         )
     report.append("")
 
@@ -188,7 +183,7 @@ def analyze_missing(df, name, out_dir, report):
         .query("eksik_sayisi > 0")
         .sort_values("eksik_sayisi", ascending=False)
     )
-    miss_df.to_csv(out_dir / "02_eksik_degerler.csv", encoding="utf-8-sig")
+    miss_df.to_excel(out_dir / "02_eksik_degerler.xlsx")
 
     report.append("## 2. Eksik Deger Analizi\n")
     report.append(f"- **Eksik iceren kolon sayisi**: {len(miss_df)} / {df.shape[1]}")
@@ -284,7 +279,7 @@ def analyze_outliers(df, name, numeric, ek_cols, out_dir, report):
             "ortalama": s.mean(), "medyan": s.median(), "std": s.std(),
         })
     out_df = pd.DataFrame(rows).sort_values("aykiri_yuzdesi", ascending=False)
-    out_df.to_csv(out_dir / "04_aykiri_degerler.csv", index=False, encoding="utf-8-sig")
+    out_df.to_excel(out_dir / "04_aykiri_degerler.xlsx", index=False)
 
     report.append("## 4. Aykiri Deger Analizi (IQR 1.5x kurali)\n")
     if not out_df.empty:
@@ -390,8 +385,7 @@ def analyze_dependency(df, name, numeric, ek_cols, out_dir, report):
         if pd.notna(c):
             corrs[col] = c
     corr_s = pd.Series(corrs).sort_values(key=np.abs, ascending=False)
-    corr_s.to_csv(out_dir / "06_hedef_korelasyon.csv", encoding="utf-8-sig",
-                  header=["korelasyon"])
+    corr_s.to_excel(out_dir / "06_hedef_korelasyon.xlsx", header=["korelasyon"])
 
     top = corr_s.head(TOP_N)
     if not top.empty:
@@ -416,7 +410,7 @@ def analyze_correlation(df, name, numeric, ek_cols, out_dir, report):
 
     # Tum sayisal korelasyon matrisini CSV olarak kaydet (rapor icin)
     full_corr = df[numeric].corr()
-    full_corr.to_csv(out_dir / "07_korelasyon_matrisi.csv", encoding="utf-8-sig")
+    full_corr.to_excel(out_dir / "07_korelasyon_matrisi.xlsx")
 
     # Yuksek korelasyonlu cift uyarisi (|r| > 0.95)
     upper = full_corr.where(np.triu(np.ones(full_corr.shape), k=1).astype(bool))
@@ -425,8 +419,8 @@ def analyze_correlation(df, name, numeric, ek_cols, out_dir, report):
         .rename(columns={"level_0": "ozellik_1", "level_1": "ozellik_2", 0: "korelasyon"})
     )
     high_pairs = high_pairs[high_pairs["korelasyon"].abs() > 0.95]
-    high_pairs.sort_values("korelasyon", key=np.abs, ascending=False).to_csv(
-        out_dir / "07_yuksek_korelasyon_ciftleri.csv", index=False, encoding="utf-8-sig"
+    high_pairs.sort_values("korelasyon", key=np.abs, ascending=False).to_excel(
+        out_dir / "07_yuksek_korelasyon_ciftleri.xlsx", index=False
     )
     report.append(f"- **|r|>0.95 olan ozellik cifti**: {len(high_pairs)} "
                   f"(bkz. 07_yuksek_korelasyon_ciftleri.csv)")
@@ -491,7 +485,7 @@ def cross_dataset_summary(dfs: dict):
             "pozitif_oran": round(vc.get(1, 0) / len(df) * 100, 1),
         })
     comp = pd.DataFrame(rows)
-    comp.to_csv(out_dir / "veri_seti_karsilastirma.csv", index=False, encoding="utf-8-sig")
+    comp.to_excel(out_dir / "veri_seti_karsilastirma.xlsx", index=False)
 
     if not comp.empty:
         fig, ax = plt.subplots(figsize=(11, 6))

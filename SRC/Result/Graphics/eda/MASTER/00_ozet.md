@@ -24,8 +24,8 @@ _Otomatik uretildi: eda_before.py_
 
 ## 4. Aykiri Deger Analizi (IQR 1.5x kurali)
 
-- **Aykiri deger iceren kolon**: 232 / 343
-- **En yuksek aykiri oranli kolon**: EK_2 (%33.09)
+- **Aykiri deger iceren kolon**: 127 / 343
+- **En yuksek aykiri oranli kolon**: AL_3 (%19.73)
 
 ## 5. Dagilimlar
 
@@ -40,8 +40,8 @@ _Otomatik uretildi: eda_before.py_
 
 ## 6. Ozellik - Hedef Bagimliligi
 
-- **Hedefle en iliskili ozellik**: AL_83 (r=-0.212)
+- **Hedefle en iliskili ozellik**: EK_7 (r=0.380)
 
 ## 7. Korelasyon Isi Haritasi
 
-- **|r|>0.95 olan ozellik cifti**: 22 (bkz. 07_yuksek_korelasyon_ciftleri.csv)
+- **|r|>0.95 olan ozellik cifti**: 143 (bkz. 07_yuksek_korelasyon_ciftleri.csv)
