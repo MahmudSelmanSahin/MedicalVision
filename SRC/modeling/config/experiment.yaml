@@ -10,7 +10,7 @@
 # Aktif profil "active_profile" ile secilir.
 # ===========================================================================
 
-active_profile: subset
+active_profile: first_pass
 
 # Tum kosular icin ortak ayarlar -------------------------------------------
 common:
@@ -22,6 +22,7 @@ common:
     train_benign_keep_frac: 0.50  # benign havuzunun en az bu kadari TRAIN'de kalir
   # Karar esigi optimizasyonu hangi metrige gore yapilsin
   threshold_metric: mcc        # mcc | macro_f1
+  ablation_mode: ofat          # ofat (baseline + her bayrak tek tek) | full (2^N)
   prior_aware_threshold: true  # esigi test prior'ina (%80 benign) gore kalibre et
   explain: true                # feature importance + SHAP (agac/lineer) uret
   # Repeated Stratified K-Fold
@@ -49,11 +50,30 @@ profiles:
       row_subsample:     ["off"]
       early_stopping:    ["off", "on"]
 
+  # B: hizli ilk-gecis (tum panel+model, 2 senaryo, 3 data_aug, random HPO, OFAT)
+  first_pass:
+    panels:    [CFTR, KANSER, PAH, MASTER]
+    scenarios: [ek-standard_median, ek-standard_nan]
+    models:    [xgboost, lightgbm, catboost, random_forest, extra_trees,
+                adaboost, svm, knn, logreg]
+    hpo:       [random]
+    data_aug:  [original, clustering, transfer_learning]
+    ablation:
+      focal_loss:        ["off", "on"]
+      feature_selection: ["off", "on"]
+      class_weight:      ["off", "on"]
+      l2:                ["off", "on"]
+      smote:             ["off", "on"]
+      feature_subsample: ["off", "on"]
+      row_subsample:     ["off", "on"]
+      early_stopping:    ["off", "on"]
+
   full:
     panels:    [CFTR, KANSER, PAH, MASTER]
     scenarios: [ek-standard_median, ek-standard_nan, ek-robust_median, ek-robust_nan]
     models:    [xgboost, lightgbm, catboost, random_forest, extra_trees,
-                adaboost, svm, knn, logreg, tabnet, tabpfn]
+                adaboost, svm, knn, logreg]
+    # tabnet, tabpfn: implement edilince eklenecek
     # ensemble (voting, stacking) tam matristen SONRA eklenecek
     hpo:       [bayesian]
     data_aug:  [original, clustering, synthetic, clustering+synthetic, transfer_learning]

@@ -64,17 +64,34 @@ def _norm_state(v) -> str:
     return str(v).strip().lower()
 
 
-def enumerate_runs(p: dict):
+def _ablation_configs(abl: dict, mode: str):
+    """Ablasyon konfiglerini uretir.
+    'full' : tum bayraklarin kartezyeni (2^N).
+    'ofat' : baseline (hepsi off) + her bayragi TEK TEK acan konfigler (1+N).
+             Standart ablasyon; her eksenin izole etkisini olcer (eslesmis)."""
+    abl_keys = list(abl)
+    if mode == "full":
+        for combo in itertools.product(*[abl[k] for k in abl_keys]):
+            yield dict(zip(abl_keys, combo))
+    else:  # ofat
+        base = {k: "off" for k in abl_keys}
+        yield dict(base)
+        for k in abl_keys:
+            if "on" in abl[k]:
+                c = dict(base); c[k] = "on"
+                yield c
+
+
+def enumerate_runs(p: dict, ablation_mode: str = "ofat"):
     """Profil eksenlerinin kartezyen carpimi -> kosu sozlukleri."""
     abl = {k: [_norm_state(x) for x in vals] for k, vals in p["ablation"].items()}
-    abl_keys = list(abl)
     for panel, scen, model, hpo, aug in itertools.product(
             p["panels"], p["scenarios"], p["models"], p["hpo"], p["data_aug"]):
-        for combo in itertools.product(*[abl[k] for k in abl_keys]):
+        for combo in _ablation_configs(abl, ablation_mode):
             yield {
                 "panel": panel, "scenario": scen, "model": model,
                 "hpo": hpo, "data_aug": aug,
-                "ablation": dict(zip(abl_keys, combo)),
+                "ablation": combo,
             }
 
 
@@ -258,7 +275,7 @@ def main():
     args = ap.parse_args()
 
     common, prof, prof_name = load_config(args.profile)
-    runs = list(enumerate_runs(prof))
+    runs = list(enumerate_runs(prof, common.get("ablation_mode", "ofat")))
     if args.limit:
         runs = runs[:args.limit]
 
