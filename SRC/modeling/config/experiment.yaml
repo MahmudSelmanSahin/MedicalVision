@@ -24,11 +24,12 @@ common:
   threshold_metric: mcc        # mcc | macro_f1
   ablation_mode: ofat          # ofat (baseline + her bayrak tek tek) | full (2^N)
   prior_aware_threshold: true  # esigi test prior'ina (%80 benign) gore kalibre et
-  explain: true                # feature importance + SHAP (agac/lineer) uret
+  explain: false               # SHAP/onem matris sirasinda KAPALI (hiz); kazananlar icin sonra
+  hpo_n_iter: 5                # HPO deneme sayisi (hiz icin dusuk; full'da artirilabilir)
   # Repeated Stratified K-Fold
   cv:
     n_splits: 5
-    n_repeats: 3
+    n_repeats: 2
   results_dir: SRC/Result/runs
 
 # ---------------------------------------------------------------------------

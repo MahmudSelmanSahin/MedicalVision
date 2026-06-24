@@ -24,13 +24,13 @@ from validation.cv import cv_evaluate               # noqa: E402
 # Model bazli arama uzaylari (clf parametre isimleri) -----------------------
 SPACES: dict[str, dict] = {
     "xgboost": {"max_depth": [3, 4, 6], "learning_rate": [0.03, 0.1, 0.2],
-                "n_estimators": [200, 400], "subsample": [0.8, 1.0]},
+                "n_estimators": [100, 200], "subsample": [0.8, 1.0]},
     "lightgbm": {"max_depth": [-1, 4, 8], "learning_rate": [0.03, 0.1, 0.2],
-                 "n_estimators": [200, 400], "num_leaves": [15, 31, 63]},
+                 "n_estimators": [100, 200], "num_leaves": [15, 31, 63]},
     "catboost": {"depth": [3, 4, 6], "learning_rate": [0.03, 0.1, 0.2]},
     "random_forest": {"max_depth": [None, 6, 12], "min_samples_leaf": [1, 2, 4]},
     "extra_trees": {"max_depth": [None, 6, 12], "min_samples_leaf": [1, 2, 4]},
-    "adaboost": {"n_estimators": [100, 200, 400], "learning_rate": [0.5, 1.0]},
+    "adaboost": {"n_estimators": [50, 100, 200], "learning_rate": [0.5, 1.0]},
     "svm": {"C": [0.1, 1.0, 10.0], "gamma": ["scale", "auto"]},
     "knn": {"n_neighbors": [3, 5, 11, 15], "weights": ["uniform", "distance"]},
     "logreg": {"C": [0.01, 0.1, 1.0, 10.0]},

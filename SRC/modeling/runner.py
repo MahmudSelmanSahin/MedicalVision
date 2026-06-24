@@ -196,7 +196,8 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
         # 3) HPO (augmentasyon HPO icinde de uygulanir)
         best_hp, hpo_score, _ = run_hpo(
             r["model"], r["scenario"], ablation, sp.X_train, sp.y_train,
-            method=r["hpo"], seed=seed, augment_fn=augment_fn)
+            method=r["hpo"], seed=seed, augment_fn=augment_fn,
+            n_iter=common.get("hpo_n_iter", 15))
         # 4) CV + esik
         pipe = build_pipeline(r["model"], r["scenario"], ablation,
                               sp.y_train, seed=seed, hp=best_hp)

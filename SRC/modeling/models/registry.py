@@ -140,7 +140,7 @@ def _build_estimator(model: str, ablation: dict, y, seed: int, hp: dict | None =
 
     if model == "xgboost":
         from xgboost import XGBClassifier
-        kw = dict(n_estimators=300, max_depth=4, learning_rate=0.1,
+        kw = dict(n_estimators=150, max_depth=4, learning_rate=0.1,
                   subsample=0.8 if on("row_subsample") else 1.0,
                   colsample_bytree=0.8 if on("feature_subsample") else 1.0,
                   reg_lambda=1.0 if on("l2") else 0.0,
@@ -155,7 +155,7 @@ def _build_estimator(model: str, ablation: dict, y, seed: int, hp: dict | None =
 
     if model == "lightgbm":
         from lightgbm import LGBMClassifier
-        kw = dict(n_estimators=300, max_depth=-1, learning_rate=0.1,
+        kw = dict(n_estimators=150, max_depth=-1, learning_rate=0.1,
                   subsample=0.8 if on("row_subsample") else 1.0,
                   subsample_freq=1 if on("row_subsample") else 0,
                   colsample_bytree=0.8 if on("feature_subsample") else 1.0,
@@ -169,7 +169,7 @@ def _build_estimator(model: str, ablation: dict, y, seed: int, hp: dict | None =
     if model == "catboost":
         from catboost import CatBoostClassifier
         return CatBoostClassifier(
-            iterations=300, depth=4, learning_rate=0.1,
+            iterations=150, depth=4, learning_rate=0.1,
             l2_leaf_reg=3.0 if on("l2") else 1.0,
             rsm=0.8 if on("feature_subsample") else 1.0,
             auto_class_weights="Balanced" if on("class_weight") else None,
@@ -177,18 +177,18 @@ def _build_estimator(model: str, ablation: dict, y, seed: int, hp: dict | None =
 
     if model == "random_forest":
         return RandomForestClassifier(
-            n_estimators=400, class_weight=cw,
+            n_estimators=200, class_weight=cw,
             max_features="sqrt" if on("feature_subsample") else None,
             bootstrap=True, random_state=seed, n_jobs=-1)
 
     if model == "extra_trees":
         return ExtraTreesClassifier(
-            n_estimators=400, class_weight=cw,
+            n_estimators=200, class_weight=cw,
             max_features="sqrt" if on("feature_subsample") else None,
             bootstrap=on("row_subsample"), random_state=seed, n_jobs=-1)
 
     if model == "adaboost":
-        return AdaBoostClassifier(n_estimators=200, random_state=seed)
+        return AdaBoostClassifier(n_estimators=120, random_state=seed)
 
     if model == "svm":
         return SVC(C=1.0, kernel="rbf", probability=True,
