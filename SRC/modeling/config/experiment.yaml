@@ -22,6 +22,7 @@ common:
     train_benign_keep_frac: 0.50  # benign havuzunun en az bu kadari TRAIN'de kalir
   # Karar esigi optimizasyonu hangi metrige gore yapilsin
   threshold_metric: mcc        # mcc | macro_f1
+  explain: true                # feature importance + SHAP (agac/lineer) uret
   # Repeated Stratified K-Fold
   cv:
     n_splits: 5

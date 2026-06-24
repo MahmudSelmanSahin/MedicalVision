@@ -36,8 +36,9 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(ROOT / "SRC" / "data_preprocessing"))
 
 import data_io as io                                   # noqa: E402
-from capabilities import applicable                    # noqa: E402
+from capabilities import CAPABILITIES, applicable      # noqa: E402
 from data.splits import clinical_holdout               # noqa: E402
+from eval.explain import final_feature_names, native_importance, shap_summary  # noqa: E402
 from eval.metrics import compute_metrics, optimize_threshold  # noqa: E402
 from eval.plots import plot_confusion, plot_pr, plot_roc      # noqa: E402
 from hpo.search import run_hpo                          # noqa: E402
@@ -145,6 +146,24 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
         plot_roc(sp.y_test, test_proba, gdir / f"{rid}__roc.png", rid)
         plot_pr(sp.y_test, test_proba, gdir / f"{rid}__pr.png", rid)
 
+        # 7) aciklanabilirlik (feature importance + SHAP)
+        if common.get("explain"):
+            try:
+                names = final_feature_names(pipe)
+                imp = native_importance(pipe, names)
+                if imp is not None:
+                    idir = ROOT / "SRC" / "Result" / "runs" / "importance"
+                    idir.mkdir(parents=True, exist_ok=True)
+                    imp.to_excel(idir / f"{rid}.xlsx", index=False)
+                    rec["top_importance"] = ";".join(imp["feature"].head(5))
+                fam = CAPABILITIES[r["model"]].family
+                top = shap_summary(pipe, sp.X_test, names, fam,
+                                   gdir / f"{rid}__shap.png")
+                if top:
+                    rec["top_shap"] = ";".join(top)
+            except Exception as e:
+                rec["explain_warn"] = f"{type(e).__name__}: {e}"
+
         rec.update(status="ok", best_hp=json.dumps(best_hp), hpo_cv_mcc=round(hpo_score, 4),
                    cv_mcc_mean=round(cv_info["cv_mcc_mean"], 4),
                    cv_mcc_std=round(cv_info["cv_mcc_std"], 4), **m)
@@ -180,10 +199,10 @@ def main():
     out_dir = ROOT / Path(common["results_dir"])
     out_dir.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame(results)
-    df.to_csv(out_dir / "all_runs.csv", index=False)
+    df.to_excel(out_dir / "all_runs.xlsx", index=False)
     (out_dir / "all_runs.json").write_text(
         json.dumps(results, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"\nTamamlandi ({time.time()-t0:.1f}s). Sonuc: {out_dir/'all_runs.csv'}")
+    print(f"\nTamamlandi ({time.time()-t0:.1f}s). Sonuc: {out_dir/'all_runs.xlsx'}")
 
     # En iyi-per-panel Excel
     try:
