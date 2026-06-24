@@ -268,10 +268,28 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
     return rec
 
 
+def _load_checkpoint(path: Path) -> dict:
+    """Checkpoint JSONL'den tamamlanmis kosulari yukler {run_id: rec}."""
+    done = {}
+    if path.exists():
+        for line in path.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                rec = json.loads(line)
+                done[rec["run_id"]] = rec
+            except Exception:
+                pass
+    return done
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--profile", help="subset | full (vars: config active_profile)")
+    ap.add_argument("--profile", help="subset | first_pass | full (vars: config)")
     ap.add_argument("--limit", type=int, help="ilk N kosu (debug)")
+    ap.add_argument("--fresh", action="store_true",
+                    help="checkpoint'i yok say, bastan basla")
     args = ap.parse_args()
 
     common, prof, prof_name = load_config(args.profile)
@@ -279,19 +297,32 @@ def main():
     if args.limit:
         runs = runs[:args.limit]
 
-    print(f"Profil: {prof_name}  |  toplam kosu: {len(runs)}")
-    results, split_cache = [], {}
-    t0 = time.time()
-    for i, r in enumerate(runs, 1):
-        rec = execute_run(r, common, split_cache)
-        results.append(rec)
-        tag = rec["status"].upper()
-        extra = (f"MCC={rec.get('mcc')} F1={rec.get('f1')} AUC={rec.get('auc')}"
-                 if rec["status"] == "ok" else rec.get("reason", ""))
-        print(f"[{i}/{len(runs)}] {tag:8} {rec['run_id']}  {extra}")
-
     out_dir = ROOT / Path(common["results_dir"])
     out_dir.mkdir(parents=True, exist_ok=True)
+    ckpt = out_dir / "_checkpoint.jsonl"
+    if args.fresh and ckpt.exists():
+        ckpt.unlink()
+
+    # Resume: tamamlanmis kosulari atla, kalanini calistir
+    done = _load_checkpoint(ckpt)
+    results = list(done.values())
+    todo = [r for r in runs if run_id(r) not in done]
+    print(f"Profil: {prof_name}  |  toplam: {len(runs)}  |  "
+          f"tamamlanmis: {len(done)}  |  kalan: {len(todo)}")
+
+    split_cache = {}
+    t0 = time.time()
+    with ckpt.open("a", encoding="utf-8") as cf:   # her kosuda incremental yaz
+        for i, r in enumerate(todo, 1):
+            rec = execute_run(r, common, split_cache)
+            results.append(rec)
+            cf.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            cf.flush()
+            tag = rec["status"].upper()
+            extra = (f"MCC={rec.get('mcc')} F1={rec.get('f1')} AUC={rec.get('auc')}"
+                     if rec["status"] == "ok" else rec.get("reason", ""))
+            print(f"[{i}/{len(todo)}] {tag:8} {rec['run_id']}  {extra}")
+
     df = pd.DataFrame(results)
     df.to_excel(out_dir / "all_runs.xlsx", index=False)
     (out_dir / "all_runs.json").write_text(
