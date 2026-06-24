@@ -191,8 +191,14 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
             rec.update(status="failed", reason=cv_info.get("error", "cv yok"))
             return rec
         mask = ~np.isnan(oof)
-        thr = optimize_threshold(np.asarray(sp.y_train)[mask], oof[mask],
-                                 metric=common["threshold_metric"])
+        yv, oofm = np.asarray(sp.y_train)[mask], oof[mask]
+        bf = common["test"]["benign_frac"]
+        metric = common["threshold_metric"]
+        # iki esik: prior KAPALI (train dagilimi) ve prior ACIK (test prior'i)
+        thr_default = optimize_threshold(yv, oofm, metric=metric, target_benign_frac=None)
+        thr_prior = optimize_threshold(yv, oofm, metric=metric, target_benign_frac=bf)
+        thr = thr_prior if common.get("prior_aware_threshold") else thr_default
+
         # 5) refit (augmentasyonlu) + test (orijinal frozen)
         if augment_fn is not None:
             Xtr_a, ytr_a = augment_fn(sp.X_train, sp.y_train)
@@ -201,6 +207,14 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
             pipe.fit(sp.X_train, sp.y_train)
         test_proba = pipe.predict_proba(sp.X_test)[:, 1]
         m = compute_metrics(sp.y_test, test_proba, threshold=thr)
+
+        # Rapor icin: prior ONCESI (default) vs SONRASI (prior) karsilastirmasi
+        m_def = compute_metrics(sp.y_test, test_proba, threshold=thr_default)
+        m_pri = compute_metrics(sp.y_test, test_proba, threshold=thr_prior)
+        rec.update(thr_default=m_def["threshold"], mcc_thr_default=m_def["mcc"],
+                   macro_f1_thr_default=m_def["macro_f1"],
+                   thr_prior=m_pri["threshold"], mcc_thr_prior=m_pri["mcc"],
+                   macro_f1_thr_prior=m_pri["macro_f1"])
 
         # 6) grafikler
         gdir = ROOT / "SRC" / "Result" / "Graphics" / r["model"].upper()
