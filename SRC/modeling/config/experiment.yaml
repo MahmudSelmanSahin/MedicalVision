@@ -1,0 +1,65 @@
+# ===========================================================================
+# ABLASYON DENEY KONFIGURASYONU  (SYZ2026 / MedicalVision)
+# ===========================================================================
+# Her eksende "acik" degerlerin kartezyen carpimi -> calistirilacak kosular.
+# Uyumsuz kombinasyonlar (ör. KNN + focal_loss) runner tarafindan otomatik atlanir.
+#
+# Iki profil vardir:
+#   profile: subset  -> hizli uctan-uca dogrulama (smoke test)
+#   profile: full    -> tam ablasyon matrisi
+# Aktif profil "active_profile" ile secilir.
+# ===========================================================================
+
+active_profile: subset
+
+# Tum kosular icin ortak ayarlar -------------------------------------------
+common:
+  seed: 42
+  # Klinik hold-out test seti: %80 benign (0) / %20 pathogenic (1)
+  test:
+    benign_frac: 0.80
+    size: 0.20                  # panelin bu orani teste ayrilir (frozen, ust sinir)
+    train_benign_keep_frac: 0.50  # benign havuzunun en az bu kadari TRAIN'de kalir
+  # Karar esigi optimizasyonu hangi metrige gore yapilsin
+  threshold_metric: mcc        # mcc | macro_f1
+  # Repeated Stratified K-Fold
+  cv:
+    n_splits: 5
+    n_repeats: 3
+  results_dir: SRC/Result/runs
+
+# ---------------------------------------------------------------------------
+profiles:
+
+  subset:
+    panels:    [CFTR]
+    scenarios: [ek-standard_median, ek-standard_nan]
+    models:    [xgboost, lightgbm, logreg]
+    hpo:       [random]                 # grid | random | bayesian
+    data_aug:  [original]               # original|clustering|synthetic|clustering+synthetic|transfer_learning
+    ablation:
+      focal_loss:        ["off", "on"]
+      feature_selection: ["off"]
+      class_weight:      ["off"]
+      l2:                ["off"]
+      smote:             ["off"]
+      feature_subsample: ["off"]
+      row_subsample:     ["off"]
+      early_stopping:    ["off", "on"]
+
+  full:
+    panels:    [CFTR, KANSER, PAH, MASTER]
+    scenarios: [ek-standard_median, ek-standard_nan, ek-robust_median, ek-robust_nan]
+    models:    [xgboost, lightgbm, catboost, random_forest, extra_trees,
+                adaboost, svm, knn, logreg, tabnet, tabpfn]
+    hpo:       [bayesian]
+    data_aug:  [original, clustering, synthetic, clustering+synthetic, transfer_learning]
+    ablation:
+      focal_loss:        ["off", "on"]
+      feature_selection: ["off", "on"]
+      class_weight:      ["off", "on"]
+      l2:                ["off", "on"]
+      smote:             ["off", "on"]
+      feature_subsample: ["off", "on"]
+      row_subsample:     ["off", "on"]
+      early_stopping:    ["off", "on"]
