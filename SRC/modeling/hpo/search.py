@@ -37,9 +37,10 @@ SPACES: dict[str, dict] = {
 }
 
 
-def _score(model, scenario, ablation, X, y, hp, seed):
+def _score(model, scenario, ablation, X, y, hp, seed, augment_fn=None):
     pipe = build_pipeline(model, scenario, ablation, y, seed=seed, hp=hp)
-    _, _, info = cv_evaluate(pipe, X, y, n_splits=5, n_repeats=1, seed=seed)
+    _, _, info = cv_evaluate(pipe, X, y, n_splits=5, n_repeats=1, seed=seed,
+                             augment_fn=augment_fn)
     return info.get("cv_mcc_mean", -1.0)
 
 
@@ -50,15 +51,15 @@ def _grid(space):
 
 
 def run_hpo(model, scenario, ablation, X, y, *, method="random",
-            n_iter=15, seed=42):
+            n_iter=15, seed=42, augment_fn=None):
     space = SPACES.get(model, {})
     if not space:
-        return {}, _score(model, scenario, ablation, X, y, {}, seed), []
+        return {}, _score(model, scenario, ablation, X, y, {}, seed, augment_fn), []
 
     trials = []
 
     def evaluate(hp):
-        s = _score(model, scenario, ablation, X, y, hp, seed)
+        s = _score(model, scenario, ablation, X, y, hp, seed, augment_fn)
         trials.append({"hp": hp, "score": s})
         return s
 

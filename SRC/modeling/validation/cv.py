@@ -27,8 +27,11 @@ def safe_splits(y, n_splits: int) -> int:
     return max(2, min(n_splits, int(min_class))) if min_class >= 2 else 0
 
 
-def cv_evaluate(pipeline, X, y, *, n_splits=5, n_repeats=3, seed=42):
-    """OOF olasilik (tekrarlar uzeri ortalama) + fold val-MCC listesi dondurur."""
+def cv_evaluate(pipeline, X, y, *, n_splits=5, n_repeats=3, seed=42, augment_fn=None):
+    """OOF olasilik (tekrarlar uzeri ortalama) + fold val-MCC listesi dondurur.
+
+    augment_fn: verilirse her train fold'una uygulanir (val fold'a ASLA);
+    boylece augmentasyon (clustering/sentetik) sizintisiz kalir."""
     y = np.asarray(y).astype(int)
     k = safe_splits(y, n_splits)
     if k < 2:
@@ -42,7 +45,10 @@ def cv_evaluate(pipeline, X, y, *, n_splits=5, n_repeats=3, seed=42):
 
     for tr, va in rskf.split(X, y):
         est = clone(pipeline)
-        est.fit(X.iloc[tr], y[tr])
+        Xtr, ytr = X.iloc[tr], y[tr]
+        if augment_fn is not None:
+            Xtr, ytr = augment_fn(Xtr, ytr)
+        est.fit(Xtr, ytr)
         p = est.predict_proba(X.iloc[va])[:, 1]
         proba_sum[va] += p
         proba_cnt[va] += 1

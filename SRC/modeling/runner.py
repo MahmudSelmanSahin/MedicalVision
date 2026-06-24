@@ -37,6 +37,7 @@ sys.path.insert(0, str(ROOT / "SRC" / "data_preprocessing"))
 
 import data_io as io                                   # noqa: E402
 from capabilities import CAPABILITIES, applicable      # noqa: E402
+from data.augment import build_clustering_candidates, make_augment_fn  # noqa: E402
 from data.splits import clinical_holdout               # noqa: E402
 from eval.explain import final_feature_names, native_importance, shap_summary  # noqa: E402
 from eval.metrics import compute_metrics, optimize_threshold  # noqa: E402
@@ -95,6 +96,31 @@ def get_split(panel: str, common: dict, cache: dict):
     return cache[panel]
 
 
+def get_master_raw(cache: dict):
+    """MASTER ham (Variant_ID'siz, etiketli) -> (mX, my). Bir kez yuklenir."""
+    if "master_raw" not in cache:
+        mdf = io.load_raw("MASTER")
+        mdf = mdf.drop(columns=[c for c in [io.ID_COL] if c in mdf.columns])
+        mdf = mdf[mdf[io.TARGET].notna()].reset_index(drop=True)
+        cache["master_raw"] = (mdf.drop(columns=[io.TARGET]), mdf[io.TARGET].astype(int))
+    return cache["master_raw"]
+
+
+def get_candidates(panel: str, sp, common: dict, cache: dict):
+    """Panel icin kumeleme aday havuzu (MASTER'dan, test'ten ayrik). Panel
+    basina bir kez hesaplanir. MASTER'in kendisi icin bos dondurur."""
+    key = f"cand::{panel}"
+    if key not in cache:
+        if panel == "MASTER":
+            cache[key] = (sp.X_train.iloc[0:0].copy(), sp.y_train.iloc[0:0].copy())
+        else:
+            mX, my = get_master_raw(cache)
+            cache[key] = build_clustering_candidates(
+                sp.X_train, sp.y_train, mX, my,
+                exclude_X=sp.X_test, seed=common["seed"])
+    return cache[key]
+
+
 def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
     rid = run_id(r)
     rec = {**{k: r[k] for k in ("panel", "scenario", "model", "hpo", "data_aug")},
@@ -106,8 +132,8 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
         rec.update(status="skipped", reason=why)
         return rec
 
-    if r["data_aug"] != "original":
-        rec.update(status="skipped", reason="augmentasyon Faz 2/3'te")
+    if r["data_aug"] == "transfer_learning":
+        rec.update(status="skipped", reason="transfer learning Faz 3'te")
         return rec
 
     seed = common["seed"]
@@ -116,26 +142,43 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
                test_benign_frac=sp.info["test_benign_frac"],
                low_train_minority=sp.info["low_train_minority"])
 
+    # --- Augmentasyon kurulumu (fold-ici, sizintisiz) ---
+    data_aug = r["data_aug"]
+    ablation = dict(r["ablation"])
+    if "synthetic" in data_aug:        # SMOTE -> pipeline sampler (fold-ici)
+        ablation["smote"] = "on"
+    augment_fn = None
+    if "clustering" in data_aug:
+        X_extra, y_extra = get_candidates(r["panel"], sp, common, split_cache)
+        augment_fn = make_augment_fn(X_extra, y_extra)
+        rec["aug_added"] = int(len(X_extra))
+        if len(X_extra) == 0 and r["panel"] != "MASTER":
+            rec["aug_warn"] = "kumeleme aday bulamadi"
+
     try:
-        # 3) HPO
+        # 3) HPO (augmentasyon HPO icinde de uygulanir)
         best_hp, hpo_score, _ = run_hpo(
-            r["model"], r["scenario"], r["ablation"], sp.X_train, sp.y_train,
-            method=r["hpo"], seed=seed)
+            r["model"], r["scenario"], ablation, sp.X_train, sp.y_train,
+            method=r["hpo"], seed=seed, augment_fn=augment_fn)
         # 4) CV + esik
-        pipe = build_pipeline(r["model"], r["scenario"], r["ablation"],
+        pipe = build_pipeline(r["model"], r["scenario"], ablation,
                               sp.y_train, seed=seed, hp=best_hp)
         oof, _, cv_info = cv_evaluate(
             pipe, sp.X_train, sp.y_train,
             n_splits=common["cv"]["n_splits"], n_repeats=common["cv"]["n_repeats"],
-            seed=seed)
+            seed=seed, augment_fn=augment_fn)
         if oof is None:
             rec.update(status="failed", reason=cv_info.get("error", "cv yok"))
             return rec
         mask = ~np.isnan(oof)
         thr = optimize_threshold(np.asarray(sp.y_train)[mask], oof[mask],
                                  metric=common["threshold_metric"])
-        # 5) refit + test
-        pipe.fit(sp.X_train, sp.y_train)
+        # 5) refit (augmentasyonlu) + test (orijinal frozen)
+        if augment_fn is not None:
+            Xtr_a, ytr_a = augment_fn(sp.X_train, sp.y_train)
+            pipe.fit(Xtr_a, ytr_a)
+        else:
+            pipe.fit(sp.X_train, sp.y_train)
         test_proba = pipe.predict_proba(sp.X_test)[:, 1]
         m = compute_metrics(sp.y_test, test_proba, threshold=thr)
 
