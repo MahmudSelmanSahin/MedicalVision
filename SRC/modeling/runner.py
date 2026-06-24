@@ -38,7 +38,8 @@ sys.path.insert(0, str(ROOT / "SRC" / "data_preprocessing"))
 import data_io as io                                   # noqa: E402
 from capabilities import CAPABILITIES, applicable      # noqa: E402
 from data.augment import build_clustering_candidates, make_augment_fn  # noqa: E402
-from data.splits import clinical_holdout               # noqa: E402
+from data.splits import Split, clinical_holdout         # noqa: E402
+from data.transfer import build_transfer_feature        # noqa: E402
 from eval.explain import final_feature_names, native_importance, shap_summary  # noqa: E402
 from eval.metrics import compute_metrics, optimize_threshold  # noqa: E402
 from eval.plots import plot_confusion, plot_pr, plot_roc      # noqa: E402
@@ -121,6 +122,21 @@ def get_candidates(panel: str, sp, common: dict, cache: dict):
     return cache[key]
 
 
+def get_transfer_split(panel: str, sp, common: dict, cache: dict):
+    """transfer_learning: panel train/test'e TL_master_prob ozelligi eklenmis
+    yeni bir Split dondurur (cache'lenmis split'i MUTASYONA UGRATMAZ)."""
+    key = f"tl::{panel}"
+    if key not in cache:
+        mX, my = get_master_raw(cache)
+        tl_tr, tl_te = build_transfer_feature(
+            sp.X_train, sp.y_train, sp.X_test, mX, my, seed=common["seed"])
+        cache[key] = (tl_tr.to_numpy(), tl_te.to_numpy())
+    tl_tr, tl_te = cache[key]
+    Xtr = sp.X_train.copy(); Xtr["TL_master_prob"] = tl_tr
+    Xte = sp.X_test.copy();  Xte["TL_master_prob"] = tl_te
+    return Split(Xtr, sp.y_train, Xte, sp.y_test, sp.info)
+
+
 def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
     rid = run_id(r)
     rec = {**{k: r[k] for k in ("panel", "scenario", "model", "hpo", "data_aug")},
@@ -132,8 +148,8 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
         rec.update(status="skipped", reason=why)
         return rec
 
-    if r["data_aug"] == "transfer_learning":
-        rec.update(status="skipped", reason="transfer learning Faz 3'te")
+    if r["data_aug"] == "transfer_learning" and r["panel"] == "MASTER":
+        rec.update(status="skipped", reason="MASTER icin transfer learning anlamsiz")
         return rec
 
     seed = common["seed"]
@@ -141,6 +157,10 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
     rec.update(train_n=sp.info["train"]["n"], test_n=sp.info["test"]["n"],
                test_benign_frac=sp.info["test_benign_frac"],
                low_train_minority=sp.info["low_train_minority"])
+
+    # transfer_learning: panel'e TL_master_prob meta-ozelligi ekle (sizintisiz)
+    if r["data_aug"] == "transfer_learning":
+        sp = get_transfer_split(r["panel"], sp, common, split_cache)
 
     # --- Augmentasyon kurulumu (fold-ici, sizintisiz) ---
     data_aug = r["data_aug"]

@@ -107,6 +107,8 @@ class FeaturePipeline(BaseEstimator, TransformerMixin):
 
         self.al_cols_ = [c for c in df.columns if c.startswith("AL_")]
         self.ek_cols_ = [c for c in df.columns if c.startswith("EK_")]
+        # TL_ = transfer-learning meta-ozellikleri (oldugu gibi gecirilir)
+        self.tl_cols_ = [c for c in df.columns if c.startswith("TL_")]
 
         # AL: eksikler 0 (biyolojik nadirlik sinyali) -> MinMax
         self.al_scaler_ = None
@@ -204,6 +206,11 @@ class FeaturePipeline(BaseEstimator, TransformerMixin):
             [(df[c] if c in df else pd.Series(pd.NA, index=df.index))
              for c in ("CAT_3", "CAT_4", "CAT_5")], axis=1)
         cols["has_archaic_delta"] = cat345_raw.notna().any(axis=1).astype(int).to_numpy()
+
+        # Transfer-learning meta-ozellikleri (oldugu gibi gecir)
+        for c in getattr(self, "tl_cols_", []):
+            cols[c] = (pd.to_numeric(df[c], errors="coerce").to_numpy()
+                       if c in df.columns else np.zeros(len(df)))
 
         out = pd.DataFrame(cols, index=df.index)
         # inf -> NaN (ör. ek7_x_ek9 tasmasi); downstream imputer temizler
