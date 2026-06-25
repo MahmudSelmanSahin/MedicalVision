@@ -1,0 +1,20 @@
+# CatBoost branch — eğitim bağımlılıkları (Python 3.10+)
+# Kurulum: pip install -r requirements.txt
+# Çalıştırma:
+#   python SRC/modeling/runner.py --profile catboost --results-dir SRC/Result/runs_catboost
+
+# Çekirdek
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.7.2
+imbalanced-learn==0.14.2   # SMOTE ablasyonu
+matplotlib==3.10.8         # ROC/PR/CM grafikleri
+PyYAML==6.0.3              # deney konfigürasyonu (experiment.yaml)
+openpyxl==3.1.5            # XLSX okuma/yazma (veri + sonuçlar)
+
+# Bu branch'in modeli
+catboost==1.2.10
+
+# transfer_learning augmentation'ı için gerekli (data_aug listesinde var)
+lightgbm==4.6.0
