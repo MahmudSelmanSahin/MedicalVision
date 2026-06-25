@@ -12,6 +12,7 @@ yeniden fit edilir. Senaryo (ek_scaler/ek_missing) FeaturePipeline parametresi.
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -132,11 +133,17 @@ def _apply_hp(est, hp):
     return est
 
 
+def _n_jobs() -> int:
+    """Paralel modda env ile 1'e cekilir (asiri abonelik onlemi); yoksa -1."""
+    return int(os.environ.get("MODELING_N_JOBS", "-1"))
+
+
 def _build_estimator(model: str, ablation: dict, y, seed: int, hp: dict | None = None):
     on = lambda f: ablation.get(f, "off") == "on"
     caps = CAPABILITIES[model]
     n_neg, n_pos = _class_balance(y)
     cw = "balanced" if on("class_weight") else None
+    nj = _n_jobs()
 
     if model == "xgboost":
         from xgboost import XGBClassifier
@@ -145,7 +152,7 @@ def _build_estimator(model: str, ablation: dict, y, seed: int, hp: dict | None =
                   colsample_bytree=0.8 if on("feature_subsample") else 1.0,
                   reg_lambda=1.0 if on("l2") else 0.0,
                   eval_metric="logloss", tree_method="hist",
-                  random_state=seed, n_jobs=-1)
+                  random_state=seed, n_jobs=nj)
         if on("class_weight"):
             kw["scale_pos_weight"] = n_neg / n_pos
         if on("focal_loss"):
@@ -160,7 +167,7 @@ def _build_estimator(model: str, ablation: dict, y, seed: int, hp: dict | None =
                   subsample_freq=1 if on("row_subsample") else 0,
                   colsample_bytree=0.8 if on("feature_subsample") else 1.0,
                   reg_lambda=1.0 if on("l2") else 0.0,
-                  class_weight=cw, random_state=seed, n_jobs=-1, verbose=-1)
+                  class_weight=cw, random_state=seed, n_jobs=nj, verbose=-1)
         if on("focal_loss"):
             kw["objective"] = make_focal_objective(2.0)
         return GBMWrapper(LGBMClassifier(**kw), early_stopping=on("early_stopping"),
@@ -179,13 +186,13 @@ def _build_estimator(model: str, ablation: dict, y, seed: int, hp: dict | None =
         return RandomForestClassifier(
             n_estimators=200, class_weight=cw,
             max_features="sqrt" if on("feature_subsample") else None,
-            bootstrap=True, random_state=seed, n_jobs=-1)
+            bootstrap=True, random_state=seed, n_jobs=nj)
 
     if model == "extra_trees":
         return ExtraTreesClassifier(
             n_estimators=200, class_weight=cw,
             max_features="sqrt" if on("feature_subsample") else None,
-            bootstrap=on("row_subsample"), random_state=seed, n_jobs=-1)
+            bootstrap=on("row_subsample"), random_state=seed, n_jobs=nj)
 
     if model == "adaboost":
         return AdaBoostClassifier(n_estimators=120, random_state=seed)
@@ -226,7 +233,7 @@ def build_pipeline(model: str, scenario: str, ablation: dict, y_train,
     if on("feature_selection"):
         from sklearn.ensemble import RandomForestClassifier as _RF
         steps.append(("select", SelectFromModel(
-            _RF(n_estimators=200, random_state=seed, n_jobs=-1),
+            _RF(n_estimators=200, random_state=seed, n_jobs=_n_jobs()),
             threshold="median")))
     else:
         steps.append(("select", "passthrough"))

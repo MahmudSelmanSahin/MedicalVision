@@ -26,6 +26,8 @@ common:
   prior_aware_threshold: true  # esigi test prior'ina (%80 benign) gore kalibre et
   explain: false               # SHAP/onem matris sirasinda KAPALI (hiz); kazananlar icin sonra
   hpo_n_iter: 5                # HPO deneme sayisi (hiz icin dusuk; full'da artirilabilir)
+  parallel_runs: 8             # ayni anda kac kosu (cok cekirdek); 1 = sirali
+  model_n_jobs: 1              # paralel modda her modelin cekirdegi (asiri abonelik onlemi)
   # Repeated Stratified K-Fold
   cv:
     n_splits: 5
@@ -55,8 +57,9 @@ profiles:
   first_pass:
     panels:    [CFTR, KANSER, PAH, MASTER]
     scenarios: [ek-standard_median, ek-standard_nan]
-    models:    [xgboost, lightgbm, catboost, random_forest, extra_trees,
-                adaboost, svm, knn, logreg]
+    models:    [xgboost, lightgbm, random_forest, extra_trees,
+                adaboost, knn, logreg]
+    # catboost, svm: yavas (CatBoost ~70s, MASTER-SVM cok yavas) -> A'da
     hpo:       [random]
     data_aug:  [original, clustering, transfer_learning]
     ablation:

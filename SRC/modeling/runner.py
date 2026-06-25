@@ -22,8 +22,10 @@ from __future__ import annotations
 import argparse
 import itertools
 import json
+import os
 import sys
 import time
+from concurrent.futures import ProcessPoolExecutor, as_completed
 from pathlib import Path
 
 import numpy as np
@@ -269,6 +271,14 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
     return rec
 
 
+_WORKER_CACHE: dict = {}   # her paralel iscide kalici (split/aday/transfer cache)
+
+
+def _run_one(r, common):
+    """Paralel isci girisi: isci-yerel cache ile tek kosu calistirir."""
+    return execute_run(r, common, _WORKER_CACHE)
+
+
 def _load_checkpoint(path: Path) -> dict:
     """Checkpoint JSONL'den tamamlanmis kosulari yukler {run_id: rec}."""
     done = {}
@@ -311,18 +321,36 @@ def main():
     print(f"Profil: {prof_name}  |  toplam: {len(runs)}  |  "
           f"tamamlanmis: {len(done)}  |  kalan: {len(todo)}")
 
-    split_cache = {}
+    workers = int(common.get("parallel_runs", 1) or 1)
     t0 = time.time()
+
+    def _log(i, rec):
+        tag = rec["status"].upper()
+        extra = (f"MCC={rec.get('mcc')} AUC={rec.get('auc')}"
+                 if rec["status"] == "ok" else rec.get("reason", ""))
+        print(f"[{i}/{len(todo)}] {tag:8} {rec['run_id']}  {extra}")
+
     with ckpt.open("a", encoding="utf-8") as cf:   # her kosuda incremental yaz
-        for i, r in enumerate(todo, 1):
-            rec = execute_run(r, common, split_cache)
-            results.append(rec)
-            cf.write(json.dumps(rec, ensure_ascii=False) + "\n")
-            cf.flush()
-            tag = rec["status"].upper()
-            extra = (f"MCC={rec.get('mcc')} F1={rec.get('f1')} AUC={rec.get('auc')}"
-                     if rec["status"] == "ok" else rec.get("reason", ""))
-            print(f"[{i}/{len(todo)}] {tag:8} {rec['run_id']}  {extra}")
+        if workers > 1 and len(todo) > 1:
+            # Paralel: model_n_jobs=1 (asiri abonelik onlemi) -> isciler env'den okur
+            os.environ["MODELING_N_JOBS"] = str(common.get("model_n_jobs", 1))
+            print(f"Paralel yurutme: {workers} isci")
+            with ProcessPoolExecutor(max_workers=workers) as ex:
+                futs = [ex.submit(_run_one, r, common) for r in todo]
+                for i, fut in enumerate(as_completed(futs), 1):
+                    rec = fut.result()
+                    results.append(rec)
+                    cf.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                    cf.flush()
+                    _log(i, rec)
+        else:
+            split_cache = {}
+            for i, r in enumerate(todo, 1):
+                rec = execute_run(r, common, split_cache)
+                results.append(rec)
+                cf.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                cf.flush()
+                _log(i, rec)
 
     df = pd.DataFrame(results)
     df.to_excel(out_dir / "all_runs.xlsx", index=False)
