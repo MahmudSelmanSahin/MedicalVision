@@ -111,6 +111,7 @@ def get_split(panel: str, common: dict, cache: dict):
             df, benign_frac=common["test"]["benign_frac"],
             test_size=common["test"]["size"],
             train_benign_keep_frac=common["test"].get("train_benign_keep_frac", 0.50),
+            balanced=panel in common["test"].get("balanced_panels", []),
             seed=common["seed"])
         cache[panel] = sp
     return cache[panel]
@@ -212,7 +213,10 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
             return rec
         mask = ~np.isnan(oof)
         yv, oofm = np.asarray(sp.y_train)[mask], oof[mask]
-        bf = common["test"]["benign_frac"]
+        # Esik, test setinin GERCEK benign oranina kalibre edilir (dengeli
+        # panellerde ~0.5, klinik panellerde ~0.8) -> esik dogru operasyon
+        # noktasinda secilir. test_benign_frac bilinen tasarim orani, sizinti yok.
+        bf = sp.info["test_benign_frac"]
         metric = common["threshold_metric"]
         # iki esik: prior KAPALI (train dagilimi) ve prior ACIK (test prior'i)
         thr_default = optimize_threshold(yv, oofm, metric=metric, target_benign_frac=None)

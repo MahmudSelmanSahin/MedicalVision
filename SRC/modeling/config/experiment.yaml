@@ -20,8 +20,10 @@ common:
     benign_frac: 0.80
     size: 0.20                  # panelin bu orani teste ayrilir (frozen, ust sinir)
     train_benign_keep_frac: 0.50  # benign havuzunun en az bu kadari TRAIN'de kalir
+    balanced_panels: [CFTR]     # bu paneller %80/20 yerine DENGELI (50/50) %20 test alir
+                                # (benign cok kit; klinik oran test'i asiri kucultuyor)
   # Karar esigi optimizasyonu hangi metrige gore yapilsin
-  threshold_metric: mcc        # mcc | macro_f1
+  threshold_metric: macro_f1   # mcc | macro_f1
   ablation_mode: ofat          # ofat (baseline + her bayrak tek tek) | full (2^N)
   prior_aware_threshold: true  # esigi test prior'ina (%80 benign) gore kalibre et
   explain: false               # SHAP/onem matris sirasinda KAPALI (hiz); kazananlar icin sonra

@@ -39,13 +39,18 @@ class Split:
 def clinical_holdout(df: pd.DataFrame, *, benign_frac: float = 0.80,
                      test_size: float = 0.20, seed: int = 42,
                      train_benign_keep_frac: float = 0.50,
-                     min_keep_per_class: int = 2) -> Split:
+                     min_keep_per_class: int = 2,
+                     balanced: bool = False) -> Split:
     """df: ham panel (Label dahil). benign=0, pathogenic=1 varsayilir.
 
-    Test seti %80/20 benign/path ORANINI korur, ANCAK benign azinlik oldugu
-    icin benign havuzunun en az `train_benign_keep_frac` kadari TRAIN'de tutulur.
-    Boylece kucuk panellerde de model benign ogrenebilir (orani korur, sadece
-    test boyutu kuculur). Frozen (sabit seed)."""
+    Iki mod:
+      * balanced=False (klinik): test %80/20 benign/path ORANINI korur, ANCAK
+        benign azinlik oldugu icin benign havuzunun en az `train_benign_keep_frac`
+        kadari TRAIN'de tutulur. Boylece test orani korunur, sadece boyutu kuculur.
+      * balanced=True: benign cok kit oldugu panellerde (ör. CFTR) %80/20 hedefi
+        test'i asiri kucultur; bunun yerine test_size kadar DENGELI (50/50) test
+        kurulur (her siniftan en az min_keep_per_class train'de kalir).
+    Frozen (sabit seed)."""
     rng = np.random.RandomState(seed)
     df = df.reset_index(drop=True)
     y = df[TARGET].astype(int)
@@ -55,14 +60,20 @@ def clinical_holdout(df: pd.DataFrame, *, benign_frac: float = 0.80,
     rng.shuffle(idx1)
     nB, nP = len(idx0), len(idx1)
 
-    # Teste konabilecek benign: (a) genel test_size hedefi, (b) train'de
-    # %keep benign tutma siniri -> ikisinin minimumu
-    want_benign = int(round(benign_frac * test_size * len(df)))
-    cap_benign = int(np.floor((1.0 - train_benign_keep_frac) * nB))
-    take_benign = max(1, min(want_benign, cap_benign))
-    # Orani korumak icin path: take_benign * (1-frac)/frac
-    want_path = int(round(take_benign * (1.0 - benign_frac) / benign_frac))
-    take_path = max(0, min(want_path, nP - min_keep_per_class))
+    if balanced:
+        # Dengeli test: test_size kadar, 50/50 benign/path
+        half = int(round(test_size * len(df))) // 2
+        take_benign = max(1, min(half, nB - min_keep_per_class))
+        take_path = max(1, min(half, nP - min_keep_per_class))
+    else:
+        # Teste konabilecek benign: (a) genel test_size hedefi, (b) train'de
+        # %keep benign tutma siniri -> ikisinin minimumu
+        want_benign = int(round(benign_frac * test_size * len(df)))
+        cap_benign = int(np.floor((1.0 - train_benign_keep_frac) * nB))
+        take_benign = max(1, min(want_benign, cap_benign))
+        # Orani korumak icin path: take_benign * (1-frac)/frac
+        want_path = int(round(take_benign * (1.0 - benign_frac) / benign_frac))
+        take_path = max(0, min(want_path, nP - min_keep_per_class))
 
     test_idx = np.concatenate([idx0[:take_benign], idx1[:take_path]])
     train_idx = np.setdiff1d(df.index.to_numpy(), test_idx)
