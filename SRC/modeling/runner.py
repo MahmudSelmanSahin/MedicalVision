@@ -301,6 +301,9 @@ def main():
     ap.add_argument("--limit", type=int, help="ilk N kosu (debug)")
     ap.add_argument("--fresh", action="store_true",
                     help="checkpoint'i yok say, bastan basla")
+    ap.add_argument("--results-dir",
+                    help="cikti klasoru override (vars: config results_dir). "
+                         "Ayri profiller (catboost/svm) icin ayri klasor ver.")
     args = ap.parse_args()
 
     common, prof, prof_name = load_config(args.profile)
@@ -308,7 +311,7 @@ def main():
     if args.limit:
         runs = runs[:args.limit]
 
-    out_dir = ROOT / Path(common["results_dir"])
+    out_dir = ROOT / Path(args.results_dir or common["results_dir"])
     out_dir.mkdir(parents=True, exist_ok=True)
     ckpt = out_dir / "_checkpoint.jsonl"
     if args.fresh and ckpt.exists():
