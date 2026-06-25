@@ -1,0 +1,17 @@
+# SVM branch — eğitim bağımlılıkları (Python 3.10+)
+# Kurulum: pip install -r requirements.txt
+# Çalıştırma:
+#   python SRC/modeling/runner.py --profile svm --results-dir SRC/Result/runs_svm
+
+# Çekirdek
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.15.3
+scikit-learn==1.7.2        # SVC modeli buradan gelir
+imbalanced-learn==0.14.2   # SMOTE ablasyonu
+matplotlib==3.10.8         # ROC/PR/CM grafikleri
+PyYAML==6.0.3              # deney konfigürasyonu (experiment.yaml)
+openpyxl==3.1.5            # XLSX okuma/yazma (veri + sonuçlar)
+
+# transfer_learning augmentation'ı için gerekli (data_aug listesinde var)
+lightgbm==4.6.0
