@@ -90,3 +90,21 @@ profiles:
       feature_subsample: ["off", "on"]
       row_subsample:     ["off", "on"]
       early_stopping:    ["off", "on"]
+
+  # CatBoost'a ozel profil (bu branch). Tum panel x 4 senaryo x tum data_aug x OFAT.
+  # Komut: python SRC/modeling/runner.py --profile catboost --results-dir SRC/Result/runs_catboost
+  catboost:
+    panels:    [CFTR, KANSER, PAH, MASTER]
+    scenarios: [ek-standard_median, ek-standard_nan, ek-robust_median, ek-robust_nan]
+    models:    [catboost]
+    hpo:       [random]
+    data_aug:  [original, clustering, synthetic, clustering+synthetic, transfer_learning]
+    ablation:
+      focal_loss:        ["off", "on"]
+      feature_selection: ["off", "on"]
+      class_weight:      ["off", "on"]
+      l2:                ["off", "on"]
+      smote:             ["off", "on"]
+      feature_subsample: ["off", "on"]
+      row_subsample:     ["off", "on"]
+      early_stopping:    ["off", "on"]
