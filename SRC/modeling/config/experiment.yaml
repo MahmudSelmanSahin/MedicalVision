@@ -92,3 +92,22 @@ profiles:
       feature_subsample: ["off", "on"]
       row_subsample:     ["off", "on"]
       early_stopping:    ["off", "on"]
+
+  # CatBoost'u first_pass ile BIREBIR ayni eksenlerde (karsilastirilabilir) calistirir.
+  # Ayni results_dir'e --fresh OLMADAN kosulur -> mevcut 7 modelin yanina eklenir.
+  # Komut: python SRC/modeling/runner.py --profile catboost
+  catboost:
+    panels:    [CFTR, KANSER, PAH, MASTER]
+    scenarios: [ek-standard_median, ek-standard_nan]
+    models:    [catboost]
+    hpo:       [random]
+    data_aug:  [original, clustering, transfer_learning]
+    ablation:
+      focal_loss:        ["off", "on"]
+      feature_selection: ["off", "on"]
+      class_weight:      ["off", "on"]
+      l2:                ["off", "on"]
+      smote:             ["off", "on"]
+      feature_subsample: ["off", "on"]
+      row_subsample:     ["off", "on"]
+      early_stopping:    ["off", "on"]

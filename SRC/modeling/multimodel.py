@@ -84,8 +84,13 @@ def panel_ensemble(panel, df, common, cache, top_k=3):
             & (~df["model"].isin(BASE_EXCLUDE))].copy()
     if ok.empty or "cv_mcc_mean" not in ok.columns:
         return None
-    idx = ok.groupby("model")["cv_mcc_mean"].idxmax()      # her modelin en iyisi
-    top = ok.loc[idx].sort_values("cv_mcc_mean", ascending=False).head(top_k)
+    # Secim metrigi (sizintisiz OOF): cv_macro_f1 TUM kosularda doluysa onu kullan,
+    # aksi halde her zaman dolu olan cv_mcc_mean'e dus (karisik matriste NaN'li
+    # modelleri haksizca elememek icin).
+    sel = next((c for c in ("cv_macro_f1", "cv_mcc_mean")
+                if c in ok.columns and ok[c].notna().mean() >= 0.99), "cv_mcc_mean")
+    idx = ok.groupby("model")[sel].idxmax()      # her modelin en iyisi
+    top = ok.loc[idx].sort_values(sel, ascending=False).head(top_k)
 
     oof_list, test_list, y_tr, y_te = [], [], None, None
     seed, bf = common["seed"], common["test"]["benign_frac"]

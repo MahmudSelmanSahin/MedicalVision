@@ -21,10 +21,15 @@ from pathlib import Path
 
 import pandas as pd
 
-RANK_METRIC = "mcc"          # tabloda gosterilen test metrigi
-SELECT_METRIC = "cv_mcc_mean"  # EN IYI'yi secme olcutu (OOF, sizintisiz)
+RANK_METRIC = "macro_f1"       # tabloda gosterilen test metrigi
+# Secim olcutu: SIZINTISIZ OOF metrikleri tercih sirasi. cv_macro_f1 varsa onu,
+# yoksa cv_mcc_mean'i kullan; test metrigine ASLA dusme (selection-bias onlemi).
+SELECT_PRIORITY = ["cv_macro_f1", "cv_mcc_mean"]
+TIE_BREAK = "cv_mcc_mean"      # beraberlikte ikincil olcut
 METRIC_COLS = ["threshold", "f1", "macro_f1", "mcc", "precision", "recall",
-               "auc", "accuracy", "cv_mcc_mean", "cv_mcc_std"]
+               "auc", "accuracy", "cv_macro_f1", "cv_mcc_mean", "cv_mcc_std"]
+# Not: cv_macro_f1, runner'da OOF macro-F1 olarak kaydedilir; eski kosularda
+# bulunmayabilir -> o durumda secim cv_mcc_mean ile yapilir (yine sizintisiz).
 
 # Ablasyon ozeti icin: izole edilecek metrikler
 SUMMARY_METRICS = ["mcc", "macro_f1", "auc"]
@@ -106,18 +111,26 @@ def build_best_per_panel(df: pd.DataFrame, out_path: Path):
             + abl_cols + [c for c in METRIC_COLS if c in ok.columns])
     keep = [c for c in keep if c in ok.columns]
 
-    # EN IYI'yi OOF ile sec (test'e gore DEGIL -> selection-bias yok)
-    sel = SELECT_METRIC if SELECT_METRIC in ok.columns else RANK_METRIC
+    # EN IYI'yi OOF ile sec (test'e gore DEGIL -> selection-bias yok).
+    # Beraberlik TIE_BREAK ile bozulur (ör. cv_macro_f1 esitse cv_mcc_mean'e bak).
+    # ONEMLI: bir OOF metrigi ancak TUM kosularda doluysa secime kullanilir;
+    # aksi halde (ör. karisik matriste cv_macro_f1 sadece yeni kosularda varsa)
+    # NaN'li modeller haksizca elenir -> her zaman dolu olan cv_mcc_mean'e dusulur.
+    def _usable(c):
+        return c in ok.columns and not ok.empty and ok[c].notna().mean() >= 0.99
+    sel = next((c for c in SELECT_PRIORITY if _usable(c)),
+               next((c for c in SELECT_PRIORITY if c in ok.columns), RANK_METRIC))
+    tie = TIE_BREAK if TIE_BREAK in ok.columns else sel
+    ok_sorted = ok.sort_values([sel, tie], ascending=[False, False])
 
     with pd.ExcelWriter(out_path, engine="openpyxl") as xl:
         if not ok.empty and sel in ok.columns:
-            idx = ok.groupby(["model", "panel"])[sel].idxmax()
-            best_mp = ok.loc[idx, keep].sort_values(
-                ["panel", sel], ascending=[True, False])
+            best_mp = ok_sorted.drop_duplicates(["model", "panel"])[keep] \
+                .sort_values(["panel", sel], ascending=[True, False])
             best_mp.to_excel(xl, sheet_name="best_per_model_panel", index=False)
 
-            idx2 = ok.groupby(["panel"])[sel].idxmax()
-            ok.loc[idx2, keep].sort_values(sel, ascending=False) \
+            ok_sorted.drop_duplicates(["panel"])[keep] \
+                .sort_values(sel, ascending=False) \
                 .to_excel(xl, sheet_name="best_per_panel", index=False)
         else:
             pd.DataFrame({"info": ["basarili kosu yok"]}).to_excel(

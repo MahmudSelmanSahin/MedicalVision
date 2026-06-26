@@ -222,6 +222,12 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
         thr_default = optimize_threshold(yv, oofm, metric=metric, target_benign_frac=None)
         thr_prior = optimize_threshold(yv, oofm, metric=metric, target_benign_frac=bf)
         thr = thr_prior if common.get("prior_aware_threshold") else thr_default
+        # Sizintisiz secim metrigi: OOF tahminlerinin secilen esikteki macro-F1'i.
+        # Test'e dokunmaz -> model secimi bunun uzerinden yapilinca selection-bias
+        # olmaz; ayrica karar metrigi (macro_f1) ile tutarli.
+        from sklearn.metrics import f1_score as _f1m
+        cv_macro_f1 = float(_f1m(yv, (oofm >= thr).astype(int),
+                                 average="macro", zero_division=0))
 
         # 5) refit (augmentasyonlu) + test (orijinal frozen)
         if augment_fn is not None:
@@ -267,7 +273,8 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
 
         rec.update(status="ok", best_hp=json.dumps(best_hp), hpo_cv_mcc=round(hpo_score, 4),
                    cv_mcc_mean=round(cv_info["cv_mcc_mean"], 4),
-                   cv_mcc_std=round(cv_info["cv_mcc_std"], 4), **m)
+                   cv_mcc_std=round(cv_info["cv_mcc_std"], 4),
+                   cv_macro_f1=round(cv_macro_f1, 4), **m)
     except Exception as e:
         import traceback
         rec.update(status="failed", reason=f"{type(e).__name__}: {e}",
