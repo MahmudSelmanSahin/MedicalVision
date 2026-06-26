@@ -22,12 +22,18 @@ from pathlib import Path
 import pandas as pd
 
 RANK_METRIC = "macro_f1"       # tabloda gosterilen test metrigi
-# Secim olcutu: SIZINTISIZ OOF metrikleri tercih sirasi. cv_macro_f1 varsa onu,
+# Secim olcutu: SIZINTISIZ OOF metrikleri tercih sirasi (PathoPredictor + NotebookLM:
+# model siralamasi icin eşikten BAGIMSIZ ROC-AUC tercih edilir). cv_auc varsa onu,
 # yoksa cv_mcc_mean'i kullan; test metrigine ASLA dusme (selection-bias onlemi).
-SELECT_PRIORITY = ["cv_macro_f1", "cv_mcc_mean"]
-TIE_BREAK = "cv_mcc_mean"      # beraberlikte ikincil olcut
+SELECT_PRIORITY = ["cv_auc", "cv_mcc_mean"]
+TIE_BREAK = "cv_pr_auc"        # beraberlikte ikincil olcut (PR-AUC); yoksa cv_mcc_mean
+# HIBRIT secim: cv_auc'si en iyiye SELECT_MARGIN kadar yakin modeller istatistiksel
+# olarak ayirt edilemez sayilir; bunlar arasinda yarisma metrigi (F1) ile ILISKILI
+# ama LEAK-FREE olan cv_pr_auc en yuksek olani secilir. Test metrigine bakilmaz.
+SELECT_MARGIN = 0.02
 METRIC_COLS = ["threshold", "f1", "macro_f1", "mcc", "precision", "recall",
-               "auc", "accuracy", "cv_macro_f1", "cv_mcc_mean", "cv_mcc_std"]
+               "auc", "accuracy", "cv_auc", "cv_pr_auc", "cv_macro_f1",
+               "cv_mcc_mean", "cv_mcc_std"]
 # Not: cv_macro_f1, runner'da OOF macro-F1 olarak kaydedilir; eski kosularda
 # bulunmayabilir -> o durumda secim cv_mcc_mean ile yapilir (yine sizintisiz).
 
@@ -129,8 +135,14 @@ def build_best_per_panel(df: pd.DataFrame, out_path: Path):
                 .sort_values(["panel", sel], ascending=[True, False])
             best_mp.to_excel(xl, sheet_name="best_per_model_panel", index=False)
 
-            ok_sorted.drop_duplicates(["panel"])[keep] \
-                .sort_values(sel, ascending=False) \
+            # Panel sampiyonu: HIBRIT -> sel (cv_auc) marj icindeki adaylar arasindan
+            # tie (cv_pr_auc) en yuksek olani sec (sizintisiz; test'e bakilmaz).
+            champs = []
+            for _, g in ok.groupby("panel"):
+                best = g[sel].max()
+                cand = g[g[sel] >= best - SELECT_MARGIN]
+                champs.append(cand.sort_values([tie, sel], ascending=False).iloc[0])
+            pd.DataFrame(champs)[keep].sort_values(sel, ascending=False) \
                 .to_excel(xl, sheet_name="best_per_panel", index=False)
         else:
             pd.DataFrame({"info": ["basarili kosu yok"]}).to_excel(
