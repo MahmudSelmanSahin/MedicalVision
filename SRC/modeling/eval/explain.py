@@ -54,6 +54,10 @@ def _transform_to_clf(pipe, X):
     for name, step in pipe.steps[:-1]:
         if step == "passthrough" or step is None:
             continue
+        # Sampler'lar (ör. SMOTE) yalniz fit sirasinda calisir; transform'u yok ->
+        # cikarim/SHAP yolunda atlanir (inference'ta zaten no-op).
+        if not hasattr(step, "transform"):
+            continue
         Xt = step.transform(Xt)
     return np.asarray(Xt, dtype=float)
 
@@ -106,17 +110,95 @@ def shap_summary(pipe, X, names, family: str, out_png: Path, max_rows: int = 200
         sv = np.asarray(sv)
         if sv.ndim == 3:                 # (n, f, classes)
             sv = sv[:, :, -1]
+        # Taban deger (waterfall/heatmap icin): pozitif sinif beklenen degeri
+        base = getattr(expl, "expected_value", 0.0)
+        if isinstance(base, (list, np.ndarray)):
+            base = np.asarray(base).ravel()
+            base = float(base[1] if base.size == 2 else base[-1])
+        else:
+            base = float(base)
         mean_abs = np.abs(sv).mean(axis=0)
-        order = np.argsort(mean_abs)[::-1][:20]
+        order = np.argsort(mean_abs)[::-1]
+        op = Path(out_png)
+        op.parent.mkdir(parents=True, exist_ok=True)
+        # Modern shap API icin Explanation nesnesi (waterfall/heatmap)
+        try:
+            expl_obj = shap.Explanation(
+                values=sv, base_values=np.full(len(sv), base),
+                data=np.asarray(Xt), feature_names=list(names))
+        except Exception:
+            expl_obj = None
+
+        def _sib(suffix):
+            return op.with_name(op.stem + suffix + ".png")
+
+        # 1) BAR ozet (mean|SHAP|) -> mevcut cikti adi
+        top20 = order[:20]
         fig, ax = plt.subplots(figsize=(6, 5))
-        ax.barh([names[i] for i in order][::-1], mean_abs[order][::-1], color="steelblue")
+        ax.barh([names[i] for i in top20][::-1], mean_abs[top20][::-1], color="steelblue")
         ax.set_xlabel("mean(|SHAP value|)")
-        ax.set_title("SHAP - ozellik onemi")
+        ax.set_title("SHAP - ozellik onemi (bar)")
         fig.tight_layout()
-        Path(out_png).parent.mkdir(parents=True, exist_ok=True)
         fig.savefig(out_png, dpi=120)
         plt.close(fig)
-        top = [names[i] for i in np.argsort(mean_abs)[::-1][:5]]
-        return top
+
+        # 2) BEESWARM (dot) ozet -> yon + dagilim
+        try:
+            shap.summary_plot(sv, features=Xt, feature_names=names,
+                              plot_type="dot", show=False, max_display=20)
+            fig = plt.gcf()
+            fig.set_size_inches(7, 6)
+            fig.suptitle("SHAP - beeswarm (deger -> etki yonu)")
+            fig.tight_layout()
+            fig.savefig(_sib("_beeswarm"), dpi=120, bbox_inches="tight")
+            plt.close(fig)
+        except Exception:
+            plt.close("all")
+
+        # 3) DEPENDENCE - en etkili 3 ozellik (etki egrisi + etkilesim rengi)
+        for fi in order[:3]:
+            try:
+                shap.dependence_plot(int(fi), sv, Xt, feature_names=names, show=False)
+                fig = plt.gcf()
+                fig.tight_layout()
+                safe = str(names[fi]).replace("/", "_").replace("\\", "_")
+                fig.savefig(_sib(f"_dep_{safe}"), dpi=120, bbox_inches="tight")
+                plt.close(fig)
+            except Exception:
+                plt.close("all")
+
+        # 4) HEATMAP - ornekler x ozellikler (genel SHAP isi haritasi)
+        if expl_obj is not None:
+            try:
+                shap.plots.heatmap(expl_obj, max_display=15, show=False)
+                fig = plt.gcf()
+                fig.savefig(_sib("_heatmap"), dpi=120, bbox_inches="tight")
+                plt.close(fig)
+            except Exception:
+                plt.close("all")
+
+        # 5) WATERFALL - en patojenik ve en benign ORNEK tahminin aciklamasi
+        if expl_obj is not None:
+            row_push = sv.sum(axis=1)
+            for tag, idx in (("ornek_patojenik", int(np.argmax(row_push))),
+                             ("ornek_benign", int(np.argmin(row_push)))):
+                try:
+                    shap.plots.waterfall(expl_obj[idx], max_display=12, show=False)
+                    fig = plt.gcf()
+                    fig.savefig(_sib(f"_waterfall_{tag}"), dpi=120, bbox_inches="tight")
+                    plt.close(fig)
+                except Exception:
+                    plt.close("all")
+
+        # 6) DECISION PLOT - cok ornekli SHAP karar yolu
+        try:
+            shap.decision_plot(base, sv, Xt, feature_names=list(names), show=False)
+            fig = plt.gcf()
+            fig.savefig(_sib("_decision"), dpi=120, bbox_inches="tight")
+            plt.close(fig)
+        except Exception:
+            plt.close("all")
+
+        return [names[i] for i in order[:5]]
     except Exception:
         return None
