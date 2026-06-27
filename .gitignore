@@ -226,10 +226,5 @@ DATA/**
 # Sonuc artefaktlari: agir/yeniden-uretilebilir/temp olanlar git'e girmesin.
 # (Ozet tablolar all_runs.xlsx/json, best_per_panel.xlsx, multimodel.xlsx
 #  ve sonuc_listesi.md takiplidir/elle eklenir.)
-SRC/Result/Graphics/
-src/result/Graphics/
-SRC/Result/runs/importance/
-SRC/Result/runs/_checkpoint.jsonl
-SRC/Result/runs_backup_*/
-SRC/Result/*_pre_auc_*
 catboost_info/
+SRC/Result/runs/_checkpoint.jsonl
