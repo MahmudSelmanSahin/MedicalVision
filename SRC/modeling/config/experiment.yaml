@@ -27,7 +27,7 @@ common:
   ablation_mode: ofat          # ofat (baseline + her bayrak tek tek) | full (2^N)
   prior_aware_threshold: true  # esigi test prior'ina (%80 benign) gore kalibre et
   explain: false               # SHAP/onem matris sirasinda KAPALI (hiz); kazananlar icin sonra
-  hpo_n_iter: 5                # HPO deneme sayisi (hiz icin dusuk; full'da artirilabilir)
+  hpo_n_iter: 5                # HPO deneme sayisi (hiz icin dusuk; odakli aramada kazanan icin artirilabilir)
   parallel_runs: 8             # ayni anda kac kosu (cok cekirdek); 1 = sirali
   model_n_jobs: 1              # paralel modda her modelin cekirdegi (asiri abonelik onlemi)
   # Repeated Stratified K-Fold
@@ -102,6 +102,26 @@ profiles:
     models:    [catboost]
     hpo:       [random]
     data_aug:  [original, clustering, transfer_learning]
+    ablation:
+      focal_loss:        ["off", "on"]
+      feature_selection: ["off", "on"]
+      class_weight:      ["off", "on"]
+      l2:                ["off", "on"]
+      smote:             ["off", "on"]
+      feature_subsample: ["off", "on"]
+      row_subsample:     ["off", "on"]
+      early_stopping:    ["off", "on"]
+
+  # PAH'a odakli GENISLETILMIS arama (en zayif panel). first_pass'in DISINDAKI
+  # eksenleri dener: ROBUST olcekleme + bayesian HPO + synthetic/clustering+synthetic.
+  # Ayni results_dir'e --fresh OLMADAN -> yeni (bayesian) run_id'ler eklenir.
+  # Sonra recompute_auc.py ile cv_auc guncellenip cv-AUC ile yeniden secilir.
+  improve_pah:
+    panels:    [PAH]
+    scenarios: [ek-standard_median, ek-standard_nan]  # robust agac modellerinde gereksiz
+    models:    [extra_trees, random_forest, lightgbm, catboost]  # PAH'in en iyi 4 agaci
+    hpo:       [random]
+    data_aug:  [original, clustering, synthetic, clustering+synthetic, transfer_learning]
     ablation:
       focal_loss:        ["off", "on"]
       feature_selection: ["off", "on"]
