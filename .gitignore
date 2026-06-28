@@ -227,4 +227,9 @@ DATA/**
 # (Ozet tablolar all_runs.xlsx/json, best_per_panel.xlsx, multimodel.xlsx
 #  ve sonuc_listesi.md takiplidir/elle eklenir.)
 catboost_info/
+SRC/Result/Graphics/
+src/result/Graphics/
+SRC/Result/runs/importance/
 SRC/Result/runs/_checkpoint.jsonl
+SRC/Result/runs_backup_*/
+SRC/Result/*_pre_auc_*
