@@ -68,8 +68,8 @@ Genetik **missense varyantlarını** patojenik (1) / benign (0) olarak sınıfla
 ## 7. Metodolojinin EVRİMİ — kararların nasıl ve neden değiştiği
 Bu bölüm projenin entelektüel çekirdeği: bazı kararları yol boyunca **kanıtla** revize ettik.
 
-### 7.1 Karar eşiği metriği: `mcc` → `macro_f1`
-Dengesiz veride MCC en acımasız metrik. İki sınıfı da eşit gözeten **macro_f1**'e geçtik (clustering'in dengeli karmaşıklık matrislerini ödüllendiriyor). `f1` (sadece pozitif sınıf) yerine `macro_f1` seçildi — çünkü f1 eşiği çoğunluğa kaydırıp benign'i görmezden gelir. *(Not: yarışma metriği F1 ise threshold_metric f1 yapılıp re-run gerekir; bu açık bir seçenek olarak bırakıldı.)*
+### 7.1 Karar eşiği metriği: `mcc` → `macro_f1` → (nihai) **F1-önceliği, panel-bazlı operasyon noktası**
+Matris taramasında varsayılan eşik metriği `macro_f1`'dir (iki sınıfı da gözetir, clustering'in dengeli matrislerini ödüllendirir). **Nihai kararda** ise şartname sıralama metriği **F1** olduğundan, eşik **panel-bazlı** ve F1-farkında olarak belirlendi (NotebookLM de imbalance'ta macro_f1 yerine F1/Youden önerdi): **MASTER** F1-optimize eşik 0.65 (F1 0.582), **PAH** klinik düşük eşik 0.62 (recall 1.0, FN=0), **CFTR/KANSER** matris eşikleri (0.88 / 0.80). Eşik her zaman OOF'ta seçilip test'e değiştirilmeden uygulandı (sızıntısız). Nihai eşikler `nihai_sampiyonlar.xlsx` ve "NİHAİ KARARLAR" bölümündedir. *(macro_f1↔F1 'açık seçenek' notu artık ÇÖZÜLDÜ.)*
 
 ### 7.2 CFTR dengeli test seti
 **Sorun:** tüm panellerde benign azınlık olduğundan, test'i "%80 benign" yapmaya çalışmak CFTR testini 12 örneğe (~%11) düşürüyordu. **Düzeltme:** CFTR'ye özel **dengeli (50/50) %20 test** (22 örnek). Diğer paneller klinik %80/20'de kaldı. Prior-aware eşik artık testin **gerçek** benign oranına kalibre (CFTR'de 0.5).
