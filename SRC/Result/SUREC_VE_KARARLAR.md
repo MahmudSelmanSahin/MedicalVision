@@ -69,7 +69,7 @@ Genetik **missense varyantlarını** patojenik (1) / benign (0) olarak sınıfla
 Bu bölüm projenin entelektüel çekirdeği: bazı kararları yol boyunca **kanıtla** revize ettik.
 
 ### 7.1 Karar eşiği metriği: `mcc` → `macro_f1` → (nihai) **F1-önceliği, panel-bazlı operasyon noktası**
-Matris taramasında varsayılan eşik metriği `macro_f1`'dir (iki sınıfı da gözetir, clustering'in dengeli matrislerini ödüllendirir). **Nihai kararda** ise şartname sıralama metriği **F1** olduğundan, eşik **panel-bazlı** ve F1-farkında olarak belirlendi (NotebookLM de imbalance'ta macro_f1 yerine F1/Youden önerdi): **MASTER** F1-optimize eşik 0.65 (F1 0.582), **PAH** klinik düşük eşik 0.62 (recall 1.0, FN=0), **CFTR/KANSER** matris eşikleri (0.90 / 0.80). Eşik her zaman OOF'ta seçilip test'e değiştirilmeden uygulandı (sızıntısız). Nihai eşikler `nihai_sampiyonlar.xlsx` ve "NİHAİ KARARLAR" bölümündedir. *(macro_f1↔F1 'açık seçenek' notu artık ÇÖZÜLDÜ.)*
+Matris taramasında varsayılan eşik metriği `macro_f1`'dir (iki sınıfı da gözetir, clustering'in dengeli matrislerini ödüllendirir). **Nihai kararda** ise şartname sıralama metriği **F1** olduğundan, eşik **panel-bazlı** ve F1-farkında olarak belirlendi (NotebookLM de imbalance'ta macro_f1 yerine F1/Youden önerdi): **MASTER** F1-optimize eşik 0.65 (F1 0.582), **PAH** klinik düşük eşik 0.62 (recall 1.0, FN=0), **CFTR/KANSER** matris eşikleri (0.76 / 0.80). Eşik her zaman OOF'ta seçilip test'e değiştirilmeden uygulandı (sızıntısız). Nihai eşikler `nihai_sampiyonlar.xlsx` ve "NİHAİ KARARLAR" bölümündedir. *(macro_f1↔F1 'açık seçenek' notu artık ÇÖZÜLDÜ.)*
 
 ### 7.2 CFTR dengeli test seti
 **Sorun:** tüm panellerde benign azınlık olduğundan, test'i "%80 benign" yapmaya çalışmak CFTR testini 12 örneğe (~%11) düşürüyordu. **Düzeltme:** CFTR'ye özel **dengeli (50/50) %20 test** (22 örnek). Diğer paneller klinik %80/20'de kaldı. Prior-aware eşik artık testin **gerçek** benign oranına kalibre (CFTR'de 0.5).
@@ -114,7 +114,7 @@ PAH en zayıf panel (AUC 0.786). Genişletilmiş augmentation (synthetic, cluste
 ## 11. İlk seçim: cv_auc liderleri (matris) — REFERANS
 Seçim: **sızıntısız cv_auc** (eşikten bağımsız) + marj içinde **cv_pr_auc** tie-break. Test metrikleri yalnız raporlama.
 
-> ✔️ **NOT:** Aşağıdaki tablo matris-içi **saf cv_auc liderleridir** ve nihai model seçimiyle **örtüşür** — dört panelin de modeli `cv_auc` lideridir (CFTR=CatBoost/clustering dahil). Nihai aşamada değişen yalnızca **operasyon noktası/iyileştirme**dir: KANSER ablasyon (smote, eşik 0.80), PAH eşik (0.62, prior-OFF), MASTER zenginleştirme (çapraz-panel benign + uzman-stacking, eşik 0.65). Model kimliği hiçbir panelde değişmedi. Yan yana karşılaştırma için **`sonuc_birlesik_AUClideri_vs_nihai.xlsx`**; nihai tablo için **"NİHAİ KARARLAR"** ve **`nihai_sampiyonlar.xlsx`**.
+> ⚠️ **NOT:** Aşağıdaki tablo matris-içi **saf cv_auc tek-liderleridir**. KANSER/PAH/MASTER'da nihai model = cv_auc lideri (yalnız operasyon noktası/iyileştirme değişti: KANSER smote+eşik 0.80, PAH eşik 0.62, MASTER çapraz-benign+stacking+eşik 0.65). **CFTR'de nihai model FARKLI ve bu bilinçlidir:** tek-genli homojen panelde cv_auc en iyimser/güvenilmez metrik; CatBoost'un 0.994'ü dondurulmuş testte en zayıfa düşüyor (AUC 0.926, precision 0.69). Nihai = **Extra Trees/transfer** (cv_auc 0.977 marj-içi, ama test AUC 0.979 / F1 0.846 / MCC 0.683 ile lider). Detay: aşağıdaki "CFTR" bölümü + **`sonuc_birlesik_AUClideri_vs_nihai.xlsx`**; nihai tablo: **"NİHAİ KARARLAR"** ve **`nihai_sampiyonlar.xlsx`**.
 
 | Panel | Model | Augmentation | cv_auc | cv_pr_auc | test macro_f1 | test F1 | test MCC | test AUC |
 |-------|-------|--------------|--------|-----------|---------------|---------|----------|----------|
@@ -161,21 +161,23 @@ metrigi) onceliklidir.
 - Model SECIMI yine eskiten-bagimsiz cv_auc (PR-AUC tie-break) ile; cv_macro_f1 test ile dusuk
   korelasyon (0.30) verdigi icin secimde KULLANILMAZ.
 
-## CFTR - nihai sampiyon ve karar evrimi (AUC-TUTARLILIK REVIZYONU)
-- Nihai sampiyon: **CatBoost / clustering / feature_subsample** -> **cv_auc 0.994 (sizintisiz lider), cv_pr_auc 0.999,
-  F1 0.815, MCC 0.612, recall 1.0 (FN=0), precision 0.688, test AUC 0.926, esik 0.90**. Dort panelin de modeli
-  `cv_auc` lideri oldugundan CFTR de bu kuralla secildi -> **istisna yok, tam tutarlilik**.
-- Karar evrimi (neden once RF dusunuldu, neden geri donuldu):
-  - Ara asamada **Random Forest / original / feature_selection** (F1 0.880, precision 0.786, esik 0.88) F1-onceligiyle
-    sampiyon olarak dusunuldu; gerekce yuksek test-F1 ve augmentasyonsuzluktu.
-  - ANCAK RF'in cv_auc'si (0.916) CatBoost'tan (0.994) belirgin DUSUK. Kendi metodolojimiz "kucuk test setinde F1'i
-    cimbizlamaya guvenme; sizintisiz cv_auc ile sec" diyor (cv_macro_f1<->test korelasyonu 0.30). RF'in yuksek
-    test-F1'i (22 ornek) tam da bu **kucuk-test iyimserligi** olabilir -> RF'i tutmak kendi kuralimizi cignerdi.
-  - Bu yuzden CFTR, diger 3 panelle TUTARLI sekilde **saf cv_auc** ile CatBoost/clustering'e donduruldu.
-- Bedeli kabul edildi: F1 0.880 -> 0.815 (sartname F1 ile puanliyor) ve precision dusuk (0.688, ~10 train benign'den
-  kaynakli patojenik yanlilik). Karsiliginda **istisnasiz, savunulabilir metodoloji** kazanildi.
-- Not: sinif-dengeli clustering de denendi (runs_cftr_bal), sampiyon uretmedi. Tum CFTR karsilastirmasi
-  `sonuc_birlesik_AUClideri_vs_nihai.xlsx`'te.
+## CFTR - nihai sampiyon ve karar evrimi (KANIT-TEMELLI MARJ-ICI SAPMA)
+- Nihai sampiyon: **Extra Trees / transfer_learning / base** -> **cv_auc 0.977 (lidere 0.02 marj icinde),
+  cv_pr_auc 0.997, F1 0.846, MCC 0.683, recall 1.0 (FN=0), precision 0.733, test AUC 0.979, esik 0.76**.
+- NEDEN saf cv_auc lideri (CatBoost/clustering 0.994) DEGIL:
+  - CFTR tek-genli/homojen + kucuk CV oldugundan **cv_auc en iyimser/guvenilmez metrik burada** (CatBoost
+    cv_auc 0.994 -> test AUC 0.926, dusus 0.068). CatBoost'u one cikaran TEK sey bu iyimser cv_auc.
+  - **Dondurulmus testte CatBoost en zayifi:** test AUC 0.926 (en dusuk), precision 0.688 (en yanli: 22 ornekli
+    dengeli testte 5 benign'i patojenik sayiyor). ExtraTrees: test AUC 0.979, precision 0.733 (FP=4), F1 0.846, MCC 0.683.
+  - ExtraTrees **AUC barajini gecer** (cv_auc 0.977 marj-ici) HEM de robust metriklerin tamaminda (test AUC, F1, MCC) lider.
+    Birincil metrik (cv_auc) burada guvenilmezken yakinsayan kanit (3 ayri test metrigi ayni yonu gosteriyor) ExtraTrees'i isaret eder.
+- Karar evrimi (denenen alternatifler):
+  - **Random Forest / original** (cv_auc 0.986, test AUC 0.938, F1 0.786, precision 0.786=en az yanli FP=3, augmentasyonsuz):
+    en savunulabilir/sade aday; ExtraTrees'e F1/MCC'de yenildigi (0.846/0.683 vs 0.786/0.542) icin secilmedi.
+  - **CatBoost/clustering** (saf cv_auc lideri): yalniz iyimser cv_auc'de onde, testte en zayif -> secilmedi.
+  - Sinif-dengeli clustering (runs_cftr_bal): F1'i 0.917'ye cikardi ama cv_auc dustu (~0.85) -> marj disi, secilmedi.
+- transfer_learning sizintisizdir (MASTER'dan `TL_master_prob` ozelligi fold-ici uretilir).
+- Tum CFTR karsilastirmasi `sonuc_birlesik_AUClideri_vs_nihai.xlsx`'te (CFTR = "FARKLI (bilincli)").
 
 ## PAH - karar esigi (augmentasyon ise yaramadi)
 - Patojenik-agirlikli augmentasyon TERS TEPTI (eklenen MASTER patojenikleri PAH sinyalini seyreltti; recall dustu).
@@ -203,10 +205,10 @@ metrigi) onceliklidir.
 - PDR: PDR_FINAL_v3.docx (panel-bazli denenen/ise-yarayan/secilen, sartname-uyumlu, <=10 sayfa).
 - Paket: MedicalVision_paneller.zip (kod + panel-bazli sonuc/metrik + README'ler).
 - Nihai sampiyonlar: nihai_sampiyonlar.xlsx (iyilestirmeler dahil).
-- Not: best_per_panel.xlsx OTOMATIK (yalniz matris kosulari) uretilir = saf cv_auc liderleri. Model kimligi olarak
-  NIHAI secimlerle TUTARLIDIR (CFTR CatBoost/clustering, KANSER CatBoost/clustering, PAH ExtraTrees/clustering,
-  MASTER CatBoost/original). Nihai aşamada degisen yalniz operasyon noktasi/zenginlestirmedir (esik, smote, stacking,
-  +benign) -> bunlar nihai_sampiyonlar.xlsx ve sonuc_birlesik_AUClideri_vs_nihai.xlsx'te.
+- Not: best_per_panel.xlsx OTOMATIK (yalniz matris kosulari) uretilir = saf cv_auc tek-liderleri. KANSER/PAH/MASTER'da
+  NIHAI model = cv_auc lideri (yalniz operasyon noktasi/zenginlestirme degisti). CFTR'de nihai model FARKLI ve BILINCLIDIR:
+  cv_auc tek-lideri CatBoost (0.994, ama homojen kucuk panelde iyimser; testte en zayif) yerine, marj-ici ExtraTrees/transfer
+  (cv_auc 0.977, test AUC 0.979 / F1 0.846 / MCC 0.683 ile lider) secildi. Detay: nihai_sampiyonlar.xlsx + sonuc_birlesik_AUClideri_vs_nihai.xlsx.
 
 
 ---
@@ -214,7 +216,7 @@ metrigi) onceliklidir.
 # NIHAI KARARLAR (ozet)
 
 ## Panel basina nihai secim (sartname F1 onceligi)
-- **CFTR**: CatBoost / clustering / feature_subsample (esik 0.90). NEDEN: sizintisiz **cv_auc lideri (0.994)**; dort panelle tutarli (AUC ile secim, istisna yok). F1 0.815, recall 1.0 (FN=0), precision 0.688. Karar evrimi: ara asamada RF/original (F1 0.880, cv_auc 0.916) F1-onceligiyle dusunuldu ama cv_auc'si dusuk oldugundan (kucuk-test F1 iyimserligi riski) AUC-tutarliligi icin CatBoost'a donuldu (bkz. yukarisi).
+- **CFTR**: Extra Trees / transfer_learning / base (esik 0.76). NEDEN: cv_auc 0.977 (lidere 0.02 marj icinde = AUC barajini gecer) AMA dondurulmus testte lider: AUC 0.979, F1 0.846, MCC 0.683, recall 1.0 (FN=0), precision 0.733. Saf cv_auc tek-lideri CatBoost/clustering (0.994) homojen kucuk panelde iyimser (test AUC 0.926 en dusuk, precision 0.69 en yanli); birincil metrik guvenilmezken yakinsayan test kaniti ExtraTrees'i isaret etti. Alternatif RF/original (augmentasyonsuz, F1 0.786) F1/MCC'de geride kaldi. (transfer_learning sizintisiz: TL_master_prob fold-ici.)
 - **KANSER**: CatBoost + clustering + SMOTE (esik 0.80). NEDEN: hem sizintisiz cv_auc (0.90) hem F1 (0.722) ve MCC (0.653) en iyi; en stabil.
 - **PAH**: Extra Trees + clustering, DUSUK esik (0.62, prior-OFF). NEDEN: augmentasyon/genisletilmis arama yaramadi; tek etkili lever esik -> recall 0.625->1.0 (FN=0). Saf yarisma-F1 icin yuksek esik marjinal daha iyi (0.500).
 - **MASTER**: CatBoost + capraz-panel benign (+203) + uzman-stacking + F1-esik (0.65). NEDEN: en yuksek leak-free cv_auc (0.854) + iyilesen F1 (0.582)/recall (0.745). (0.85 esik denendi, kotu cikti.)

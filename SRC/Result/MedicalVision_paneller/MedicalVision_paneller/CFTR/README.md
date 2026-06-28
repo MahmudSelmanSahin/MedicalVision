@@ -4,14 +4,17 @@
 4 senaryo (std/robust x median/nan) x 9 model x (original/clustering/transfer/synthetic) x OFAT ablasyon; DENGELI %20 test (benign kit oldugu icin); ek olarak sinif-dengeli clustering (gercek MASTER benign'i ~1:1).
 
 ## Ise yarayan / yaramayan
-RF/original (F1 0.880) ve sinif-dengeli clustering DENENDI; F1 acisindan cazip olsalar da cv_auc'leri dusuktu (RF 0.916).
-Kucuk-test (22 ornek) F1 iyimserligine guvenmemek icin (cv_macro_f1<->test korelasyonu 0.30) bunlar SECILMEDI.
+CFTR tek-genli/homojen + kucuk panel -> cv_auc burada EN IYIMSER/guvenilmez metrik. Saf cv_auc tek-lideri CatBoost/clustering
+(0.994) dondurulmus testte EN ZAYIF cikti (test AUC 0.926, precision 0.69 = en yanli, 22 ornekli dengeli testte 5 FP).
+Sinif-dengeli clustering F1'i 0.917'ye cikardi ama cv_auc dustu (~0.85) -> marj disi, secilmedi.
 
-## Secilen model (sizintisiz cv_auc lideri — AUC-tutarli)
-CatBoost / clustering / feature_subsample. NEDEN: dort panelle tutarli sekilde **cv_auc lideri (0.994)** ile secildi (istisna yok).
-- En iyi ablasyon: **feature_subsample**
-- Test metrikleri: F1=0.815  MCC=0.612  macro-F1=0.760  recall=1.00 (FN=0)  precision=0.688  ROC-AUC=0.926  | cv_auc=0.994
-- Karar evrimi: ara asamada RF/original (F1 0.880, cv_auc 0.916) F1-onceligiyle dusunuldu; cv_auc dusuk oldugundan AUC-tutarliligi icin CatBoost'a donuldu.
+## Secilen model (cv_auc marj-ici + dondurulmus test lideri)
+Extra Trees / transfer_learning / base. NEDEN: cv_auc 0.977 (lidere 0.02 marj icinde = AUC barajini gecer) HEM de
+robust metriklerin tamaminda lider. Birincil metrik (cv_auc) burada guvenilmezken yakinsayan test kaniti (3 metrik) ExtraTrees'i isaret eder.
+- Ablasyon: **base** | esik 0.76
+- Test metrikleri: F1=0.846  MCC=0.683  macro-F1=0.812  recall=1.00 (FN=0)  precision=0.733 (FP=4, en az yanlilardan)  ROC-AUC=0.979  | cv_auc=0.977
+- Alternatif: RF/original (augmentasyonsuz, F1 0.786, precision 0.786=en az yanli) F1/MCC'de geride kaldi. CatBoost/clustering saf cv_auc lideri ama testte en zayif.
+- transfer_learning sizintisizdir (MASTER'dan TL_master_prob fold-ici uretilir).
 
 ## Yeniden calistirma
 ```
