@@ -96,6 +96,7 @@ Matris taramasında varsayılan eşik metriği `macro_f1`'dir (iki sınıfı da 
 | runner `all_runs.xlsx`'i checkpoint'ten yeniden yazınca cv_auc silindi | checkpoint cv_auc içermiyor | Eski cv_auc commit'li sürümden geri yüklendi, sadece yeni koşular hesaplandı (~2.7h yerine dakikalar) |
 | `SRC/Result` vs `src/result` case tutarsızlığı | IDE/araçlar küçük-harf yol üretti | git `ignorecase=true` ile yeni dosyalar mevcut `SRC/Result` case'ine normalize edildi |
 | Bayesian-15 HPO PAH aramasını ~7-8 saate çıkardı | hpo_n_iter=15 × CV çok yavaş | Yalın profile geçildi (random-5, robust ağaçta gereksiz olduğu için çıkarıldı), sadece yeni augmentation'lar (144 koşu) |
+| PAH clustering'e sadece benign eklenmesi denendi (balance=True) | PAH azınlık sınıfı benign, MASTER'dan her iki sınıf eklemek mantıksız görünüyordu | 126 koşu sonucu: cv_mcc 0.461→0.353 — kötüleşti. Her iki sınıftan ekleme (balance=False) daha iyi: MASTER'ın pathogenic örnekleri de PAH sinyalini güçlendiriyor. `clustering_balance_panels` CFTR'de kaldı, PAH'tan çıkarıldı. |
 
 ---
 
@@ -182,6 +183,10 @@ metrigi) onceliklidir.
 ## PAH - karar esigi (augmentasyon ise yaramadi)
 - Patojenik-agirlikli augmentasyon TERS TEPTI (eklenen MASTER patojenikleri PAH sinyalini seyreltti; recall dustu).
 - Genisletilmis arama (bayesian/robust/synthetic) mevcut sampiyonu gecemedi.
+- **balance=True denemesi (2026-06-29):** clustering_balance_panels'a PAH eklenerek sadece benign örnekleri
+  eklendi (271 benign, pathogenic=0). 126 koşu sonucu: cv_mcc 0.461→0.353, auc sabit 0.746.
+  **Kötüleşti.** MASTER'ın pathogenic örnekleri de PAH için bilgi taşıyor; sadece benign eklemek sinyal
+  çeşitliliğini azaltıyor. PAH `clustering_balance_panels`'dan çıkarıldı (balance=False'da kaldı).
 - ISE YARAYAN: karar esigini dusurmek (prior-OFF, 0.62) -> recall 0.625->**1.0** (FN=0), MCC 0.349->0.380.
   PAH tablo verisinin tavanindadir; tek etkili lever esiktir.
 

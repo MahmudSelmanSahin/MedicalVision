@@ -41,6 +41,39 @@ common:
 # ---------------------------------------------------------------------------
 profiles:
 
+  cftr_shap:
+    panels:    [CFTR]
+    scenarios: [ek-standard_median]
+    models:    [extra_trees]
+    hpo:       [random]
+    data_aug:  [transfer_learning]
+    ablation:
+      focal_loss:        ["off"]
+      feature_selection: ["off"]
+      class_weight:      ["on"]
+      l2:                ["off"]
+      smote:             ["off"]
+      feature_subsample: ["off"]
+      row_subsample:     ["off"]
+      early_stopping:    ["off"]
+
+  pah_clustering:
+    panels:    [PAH]
+    scenarios: [ek-standard_median, ek-standard_nan]
+    models:    [xgboost, lightgbm, random_forest, extra_trees,
+                adaboost, knn, logreg]
+    hpo:       [random]
+    data_aug:  [clustering]
+    ablation:
+      focal_loss:        ["off", "on"]
+      feature_selection: ["off", "on"]
+      class_weight:      ["off", "on"]
+      l2:                ["off", "on"]
+      smote:             ["off", "on"]
+      feature_subsample: ["off", "on"]
+      row_subsample:     ["off", "on"]
+      early_stopping:    ["off", "on"]
+
   subset:
     panels:    [CFTR]
     scenarios: [ek-standard_median, ek-standard_nan]
