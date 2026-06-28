@@ -14,13 +14,13 @@
 
 | Panel | Model / Müdahale | Ablasyon | Eşik | F1 | MCC | recall | cv_auc |
 |-------|------------------|----------|------|-----|-----|--------|--------|
-| **CFTR** | RandomForest / original | feature_selection | 0.88 | 0.880 | 0.756 | 1.00 | 0.916 |
+| **CFTR** | CatBoost / clustering | feature_subsample | 0.90 | 0.815 | 0.612 | 1.00 | 0.994 |
 | **KANSER** | CatBoost / clustering | smote | 0.80 | 0.722 | 0.653 | 0.867 | 0.904 |
 | **PAH** | Extra Trees / clustering (düşük eşik) | class_weight | 0.62 | 0.485 | 0.380 | 1.00 | 0.839 |
 | **MASTER** | CatBoost / +çapraz-benign +uzman-stacking +F1-eşik | class_weight | 0.65 | 0.582 | 0.467 | 0.745 | 0.854 |
 
 ## Saf cv_auc liderleri (REFERANS — best_per_panel.xlsx)
-- CFTR: CatBoost/clustering (cv_auc 0.994, F1 0.815) — en yüksek ayırt-edicilik; ama F1 düşük → nihai RF/original seçildi.
+- CFTR: CatBoost/clustering (cv_auc 0.994, F1 0.815) = nihai ile aynı (AUC-tutarlı seçim; RF/original F1 0.880 daha yüksekti ama cv_auc 0.916 düşük → küçük-test F1 iyimserliği riski, seçilmedi).
 - KANSER: CatBoost/clustering/smote (cv_auc 0.904) = nihai ile aynı.
 - MASTER: CatBoost/original (cv_auc 0.846) — nihai stacking+benign ile geçildi.
 - PAH: Extra Trees/clustering (cv_auc 0.839) = nihai ile aynı (eşik düşürüldü).
