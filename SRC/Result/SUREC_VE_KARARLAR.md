@@ -194,3 +194,23 @@ metrigi) onceliklidir.
 - Nihai sampiyonlar: nihai_sampiyonlar.xlsx (iyilestirmeler dahil).
 - Not: best_per_panel.xlsx OTOMATIK (yalniz matris kosulari) uretildigi icin matris-sonrasi iyilestirmeleri
   (CFTR dengeli-RF, MASTER stacking+benign) ICERMEZ; nihai secimler nihai_sampiyonlar.xlsx'tedir.
+
+
+---
+
+# NIHAI KARARLAR (ozet)
+
+## Panel basina nihai secim (sartname F1 onceligi)
+- **CFTR**: Random Forest + dengeli-clustering (OOF esik). NEDEN: en yuksek F1 (0.880) + CM dengeli (FP=3, FN=0) + leak-free gercek benign. (Ayirt-etme onceligi istenirse CatBoost/clustering, cv_auc 0.99 alternatif.)
+- **KANSER**: CatBoost + clustering + SMOTE (esik 0.80). NEDEN: hem sizintisiz cv_auc (0.90) hem F1 (0.722) ve MCC (0.653) en iyi; en stabil.
+- **PAH**: Extra Trees + clustering, DUSUK esik (0.62, prior-OFF). NEDEN: augmentasyon/genisletilmis arama yaramadi; tek etkili lever esik -> recall 0.625->1.0 (FN=0). Saf yarisma-F1 icin yuksek esik marjinal daha iyi (0.500).
+- **MASTER**: CatBoost + capraz-panel benign (+203) + uzman-stacking + F1-esik (0.65). NEDEN: en yuksek leak-free cv_auc (0.854) + iyilesen F1 (0.582)/recall (0.745). (0.85 esik denendi, kotu cikti.)
+
+## Metodolojik kararlar
+- **Karar esigi metrigi: F1** (sartname siralama metrigi) - macro_f1 DEGIL (cogunluk benign'i maskeler).
+- **Model secimi: eskiten-bagimsiz cv_auc** (yakin adaylar cv_pr_auc tie-break). Test'e gore secim YOK (selection-bias). cv_macro_f1 secimde kullanilmaz (test korelasyonu dusuk: 0.30).
+- **Esik OOF'ta secilir, test'e DEGISTIRILMEDEN uygulanir** (sizintisiz); prior-farkinda (~%80 benign).
+- **Dis veri YOK** (donguselluk/sizinti riski); zenginlestirme yalniz ic-veri ve fold-ici.
+- **CFTR testi dengeli %20** (benign cok kit); KANSER/PAH/MASTER klinik %80/20.
+- **Ensemble**: yalniz MASTER'da uzman-stacking benimsendi (REVEL tarzi, leak-free); panel-ici voting/stacking benimsenmedi (tek modeli gecemedi); sert uzman-yonlendirme (MoE) reddedildi (OOD).
+- **MASTER dusuk MCC (0.47) = klinik gercekcilik**, zaafiyet degil: en buyuk/heterojen/gercekci-dengesiz test; kucuk panellerin yuksek skorlari kismen kucuk-orneklem iyimserligi.
