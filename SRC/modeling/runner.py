@@ -136,9 +136,10 @@ def get_candidates(panel: str, sp, common: dict, cache: dict):
             cache[key] = (sp.X_train.iloc[0:0].copy(), sp.y_train.iloc[0:0].copy())
         else:
             mX, my = get_master_raw(cache)
+            bal = panel in common.get("clustering_balance_panels", [])
             cache[key] = build_clustering_candidates(
                 sp.X_train, sp.y_train, mX, my,
-                exclude_X=sp.X_test, seed=common["seed"])
+                exclude_X=sp.X_test, seed=common["seed"], balance=bal)
     return cache[key]
 
 
@@ -225,9 +226,14 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
         # Sizintisiz secim metrigi: OOF tahminlerinin secilen esikteki macro-F1'i.
         # Test'e dokunmaz -> model secimi bunun uzerinden yapilinca selection-bias
         # olmaz; ayrica karar metrigi (macro_f1) ile tutarli.
-        from sklearn.metrics import f1_score as _f1m
+        from sklearn.metrics import (f1_score as _f1m, roc_auc_score as _ra,
+                                      average_precision_score as _ap)
         cv_macro_f1 = float(_f1m(yv, (oofm >= thr).astype(int),
                                  average="macro", zero_division=0))
+        # Esikten BAGIMSIZ, sizintisiz secim metrikleri (PathoPredictor onerisi)
+        _two = len(np.unique(yv)) > 1
+        cv_auc = float(_ra(yv, oofm)) if _two else float("nan")
+        cv_pr_auc = float(_ap(yv, oofm)) if _two else float("nan")
 
         # 5) refit (augmentasyonlu) + test (orijinal frozen)
         if augment_fn is not None:
@@ -274,7 +280,8 @@ def execute_run(r: dict, common: dict, split_cache: dict) -> dict:
         rec.update(status="ok", best_hp=json.dumps(best_hp), hpo_cv_mcc=round(hpo_score, 4),
                    cv_mcc_mean=round(cv_info["cv_mcc_mean"], 4),
                    cv_mcc_std=round(cv_info["cv_mcc_std"], 4),
-                   cv_macro_f1=round(cv_macro_f1, 4), **m)
+                   cv_macro_f1=round(cv_macro_f1, 4),
+                   cv_auc=round(cv_auc, 4), cv_pr_auc=round(cv_pr_auc, 4), **m)
     except Exception as e:
         import traceback
         rec.update(status="failed", reason=f"{type(e).__name__}: {e}",

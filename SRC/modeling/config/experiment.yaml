@@ -26,6 +26,8 @@ common:
   threshold_metric: macro_f1   # mcc | macro_f1
   ablation_mode: ofat          # ofat (baseline + her bayrak tek tek) | full (2^N)
   prior_aware_threshold: true  # esigi test prior'ina (%80 benign) gore kalibre et
+  clustering_balance_panels: [CFTR]  # bu panellerde clustering, azinlik (benign) sinifini
+                                     # gercek MASTER varyantlariyla ~1:1'e dengeler (overshoot yok)
   explain: false               # SHAP/onem matris sirasinda KAPALI (hiz); kazananlar icin sonra
   hpo_n_iter: 5                # HPO deneme sayisi (hiz icin dusuk; odakli aramada kazanan icin artirilabilir)
   parallel_runs: 8             # ayni anda kac kosu (cok cekirdek); 1 = sirali
@@ -116,6 +118,24 @@ profiles:
   # eksenleri dener: ROBUST olcekleme + bayesian HPO + synthetic/clustering+synthetic.
   # Ayni results_dir'e --fresh OLMADAN -> yeni (bayesian) run_id'ler eklenir.
   # Sonra recompute_auc.py ile cv_auc guncellenip cv-AUC ile yeniden secilir.
+  # CFTR'yi DENGELI clustering (gercek benign ekleme) ile yeniden calistirir.
+  # Ayri results_dir'e --fresh ile kosulur, sonra cv_auc ile mevcut sampiyona kiyaslanir.
+  cftr_balanced:
+    panels:    [CFTR]
+    scenarios: [ek-standard_median, ek-standard_nan]
+    models:    [xgboost, lightgbm, random_forest, extra_trees, adaboost, knn, logreg, catboost]
+    hpo:       [random]
+    data_aug:  [original, clustering, transfer_learning]
+    ablation:
+      focal_loss:        ["off", "on"]
+      feature_selection: ["off", "on"]
+      class_weight:      ["off", "on"]
+      l2:                ["off", "on"]
+      smote:             ["off", "on"]
+      feature_subsample: ["off", "on"]
+      row_subsample:     ["off", "on"]
+      early_stopping:    ["off", "on"]
+
   improve_pah:
     panels:    [PAH]
     scenarios: [ek-standard_median, ek-standard_nan]  # robust agac modellerinde gereksiz

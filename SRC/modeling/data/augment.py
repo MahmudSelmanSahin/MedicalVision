@@ -46,9 +46,12 @@ def build_clustering_candidates(panel_X: pd.DataFrame, panel_y: pd.Series,
                                 master_X: pd.DataFrame, master_y: pd.Series,
                                 *, exclude_X: pd.DataFrame | None = None,
                                 n_clusters: int = 8, max_add: int | None = None,
-                                seed: int = 42):
+                                seed: int = 42, balance: bool = False):
     """Panele benzeyen, panelde/test'te OLMAYAN gercek MASTER varyantlari.
-    exclude_X: ayrica dislanacak satirlar (ör. frozen test) - deger-bazli."""
+    exclude_X: ayrica dislanacak satirlar (ör. frozen test) - deger-bazli.
+    balance=True: yalnizca AZINLIK sinifindan, train'i ~1:1'e getirecek KADAR
+    aday eklenir (PARITE ile sinirli -> overshoot yok). Benign-kit panellerde
+    (ör. CFTR) gercek benign ekleyerek dengesizligi giderir, sinifi ters cevirmez."""
     common = _numeric_common(panel_X, master_X)
     if len(common) < 3 or len(master_X) == 0:
         empty = panel_X.iloc[0:0].copy()
@@ -78,9 +81,19 @@ def build_clustering_candidates(panel_X: pd.DataFrame, panel_y: pd.Series,
 
     rng = np.random.RandomState(seed)
     rng.shuffle(keep)
-    if max_add is None:
-        max_add = len(panel_X)          # en fazla panel boyutu kadar ekle
-    keep = keep[:max_add]
+    if balance:
+        # AZINLIK sinifindan parite kadar aday ekle (overshoot korumasi):
+        # need = |n_path - n_benign|; yalnizca azinlik sinifindan 'need' aday.
+        py = np.asarray(panel_y).astype(int)
+        n0, n1 = int((py == 0).sum()), int((py == 1).sum())
+        minority = 0 if n0 <= n1 else 1
+        need = abs(n1 - n0)
+        my_arr = np.asarray(master_y).astype(int)
+        keep = [i for i in keep if my_arr[i] == minority][:need]
+    else:
+        if max_add is None:
+            max_add = len(panel_X)          # en fazla panel boyutu kadar ekle
+        keep = keep[:max_add]
 
     # Panel ham semasina hizala (eksik kolonlar NaN; fe_pipeline tolere eder)
     X_extra = master_X.iloc[keep].reindex(columns=panel_X.columns).reset_index(drop=True)
