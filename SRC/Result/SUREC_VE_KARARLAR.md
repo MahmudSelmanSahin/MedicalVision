@@ -159,12 +159,14 @@ metrigi) onceliklidir.
 - Model SECIMI yine eskiten-bagimsiz cv_auc (PR-AUC tie-break) ile; cv_macro_f1 test ile dusuk
   korelasyon (0.30) verdigi icin secimde KULLANILMAZ.
 
-## CFTR - sinif-dengeli clustering
-- Sorun: yalniz ~10 train benign -> model patojenige yanli (precision 0.69, FP cok).
-- Cozum: clustering ile gercek MASTER benign'i ekleyip train'i ~1:1 dengeleme (overshoot korumali; havuzda 771 benign).
-- Sonuc: Random Forest -> F1 0.815->**0.880**, MCC 0.61->**0.76**, precision 0.79, recall 1.0 (FN=0). CM: TN8/FP3/FN0/TP11.
-- Takas: cv_auc 0.99->0.90 (eklenen benign MASTER kaynakli, CFTR'ye ozgu siralamayi biraz dusurur).
-  Sartname F1 onceligiyle dengeli-RF secildi; ayirt-etme onceligi istenirse CatBoost/clustering alternatiftir.
+## CFTR - patojenik yanliligi ve nihai sampiyon (DUZELTME)
+- Sorun: yalniz ~10 train benign -> CatBoost/clustering (cv_auc lideri 0.994) patojenige yanli (F1 0.815, precision 0.69).
+- Sinif-dengeli clustering DENENDI (gercek MASTER benign'i ~1:1, overshoot korumali) ama sampiyon URETMEDI:
+  dengeli-clustering RF, duz RF/original'i GECEMEDI.
+- ASIL SAMPIYON: **Random Forest / original / feature_selection** -> **F1 0.880, MCC 0.756, recall 1.0 (FN=0),
+  precision 0.786, cv_auc 0.916, esik 0.88**. Bu konfig HEM en yuksek F1 HEM guclu cv_auc (2. en yuksek) saglar;
+  augmentasyona gerek kalmadi. (Onceki taslakta F1 0.880 yanlislikla 'dengeli-clustering'e atfedilmisti -> duzeltildi.)
+- Saf cv_auc lideri CatBoost/clustering (0.994, F1 0.815) ayirt-etme onceligi istenirse alternatiftir.
 
 ## PAH - karar esigi (augmentasyon ise yaramadi)
 - Patojenik-agirlikli augmentasyon TERS TEPTI (eklenen MASTER patojenikleri PAH sinyalini seyreltti; recall dustu).
@@ -193,7 +195,8 @@ metrigi) onceliklidir.
 - Paket: MedicalVision_paneller.zip (kod + panel-bazli sonuc/metrik + README'ler).
 - Nihai sampiyonlar: nihai_sampiyonlar.xlsx (iyilestirmeler dahil).
 - Not: best_per_panel.xlsx OTOMATIK (yalniz matris kosulari) uretildigi icin matris-sonrasi iyilestirmeleri
-  (CFTR dengeli-RF, MASTER stacking+benign) ICERMEZ; nihai secimler nihai_sampiyonlar.xlsx'tedir.
+  ICERMEZ (best_per_panel saf cv_auc lideri = CFTR CatBoost/clustering, MASTER CatBoost/original); F1-onceligi
+  ve iyilestirmeleri iceren NIHAI secimler nihai_sampiyonlar.xlsx'tedir (ornegin CFTR RF/original, MASTER stacking+benign).
 
 
 ---
@@ -201,7 +204,7 @@ metrigi) onceliklidir.
 # NIHAI KARARLAR (ozet)
 
 ## Panel basina nihai secim (sartname F1 onceligi)
-- **CFTR**: Random Forest + dengeli-clustering (OOF esik). NEDEN: en yuksek F1 (0.880) + CM dengeli (FP=3, FN=0) + leak-free gercek benign. (Ayirt-etme onceligi istenirse CatBoost/clustering, cv_auc 0.99 alternatif.)
+- **CFTR**: Random Forest / original / feature_selection (esik 0.88). NEDEN: en yuksek F1 (0.880) + guclu cv_auc (0.916) + recall 1.0 (FN=0, precision 0.786). Not: dengeli-clustering denendi ama duz RF/original'i gecemedi; saf cv_auc lideri CatBoost/clustering (0.994, F1 0.815) alternatif.
 - **KANSER**: CatBoost + clustering + SMOTE (esik 0.80). NEDEN: hem sizintisiz cv_auc (0.90) hem F1 (0.722) ve MCC (0.653) en iyi; en stabil.
 - **PAH**: Extra Trees + clustering, DUSUK esik (0.62, prior-OFF). NEDEN: augmentasyon/genisletilmis arama yaramadi; tek etkili lever esik -> recall 0.625->1.0 (FN=0). Saf yarisma-F1 icin yuksek esik marjinal daha iyi (0.500).
 - **MASTER**: CatBoost + capraz-panel benign (+203) + uzman-stacking + F1-esik (0.65). NEDEN: en yuksek leak-free cv_auc (0.854) + iyilesen F1 (0.582)/recall (0.745). (0.85 esik denendi, kotu cikti.)
