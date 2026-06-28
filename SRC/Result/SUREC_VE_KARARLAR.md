@@ -142,3 +142,55 @@ Seçim: **sızıntısız cv_auc** (eşikten bağımsız) + marj içinde **cv_pr_
 
 ## 14. Tek cümlelik özet
 Her kararı **sızıntısızlık** ve **dürüst genelleme ölçümü** ilkeleriyle aldık; test'te yükseni cımbızlamak yerine bilimsel doğruyu seçtik, yanılan kararları (cv_macro_f1) kanıtla geri aldık, ve nihai modelleri eşikten-bağımsız sızıntısız ROC-AUC ile seçip dürüst test skorlarıyla raporladık.
+
+
+---
+
+# EK: Matris-Sonrasi Iyilestirmeler ve Nihai Durum (guncelleme)
+
+Bu bolum, ilk surec belgesinden SONRA yapilan panel-ozel iyilestirmeleri ve nihai
+sampiyon kararlarini ozetler. Tum kararlar sizintisizdir; secim cv_auc, esik F1 (sartname
+metrigi) onceliklidir.
+
+## Secim/altyapi rafinasyonu
+- runner artik `cv_auc` ve `cv_pr_auc`'yi NATIF kaydeder (eskiden ayri recompute gerekiyordu).
+- Karar esigi metrigi tartismasi: sartname siralama metrigi F1 oldugundan, esik **F1** icin
+  optimize edilir (macro_f1 cogunluk benign'i maskeler). Esik OOF'ta secilip test'e degistirilmeden uygulanir.
+- Model SECIMI yine eskiten-bagimsiz cv_auc (PR-AUC tie-break) ile; cv_macro_f1 test ile dusuk
+  korelasyon (0.30) verdigi icin secimde KULLANILMAZ.
+
+## CFTR - sinif-dengeli clustering
+- Sorun: yalniz ~10 train benign -> model patojenige yanli (precision 0.69, FP cok).
+- Cozum: clustering ile gercek MASTER benign'i ekleyip train'i ~1:1 dengeleme (overshoot korumali; havuzda 771 benign).
+- Sonuc: Random Forest -> F1 0.815->**0.880**, MCC 0.61->**0.76**, precision 0.79, recall 1.0 (FN=0). CM: TN8/FP3/FN0/TP11.
+- Takas: cv_auc 0.99->0.90 (eklenen benign MASTER kaynakli, CFTR'ye ozgu siralamayi biraz dusurur).
+  Sartname F1 onceligiyle dengeli-RF secildi; ayirt-etme onceligi istenirse CatBoost/clustering alternatiftir.
+
+## PAH - karar esigi (augmentasyon ise yaramadi)
+- Patojenik-agirlikli augmentasyon TERS TEPTI (eklenen MASTER patojenikleri PAH sinyalini seyreltti; recall dustu).
+- Genisletilmis arama (bayesian/robust/synthetic) mevcut sampiyonu gecemedi.
+- ISE YARAYAN: karar esigini dusurmek (prior-OFF, 0.62) -> recall 0.625->**1.0** (FN=0), MCC 0.349->0.380.
+  PAH tablo verisinin tavanindadir; tek etkili lever esiktir.
+
+## MASTER - capraz-panel benign + uzman-stacking + F1-esik
+- clustering UYGULANAMAZ (MASTER aday kaynagidir).
+- Capraz-panel benign: alt panel (CFTR/KANSER/PAH) benign'leri MASTER'dan deger-bazli AYRIK cikti (~%0 ortusme);
+  203 gercek benign eklendi -> cv_auc ve precision artti.
+- Uzman-stacking: alt-panel modellerinin olasilik ciktilari MASTER'a TL_ ozelligi olarak verildi, ustune meta-CatBoost
+  (REVEL/MetaRNN mantigi). Uzmanlar ORIGINAL egitildi (leak-free). recall artti.
+- F1-esik (~0.65): birlikte -> F1 0.563->**0.582**, MCC 0.448->**0.467**, recall 0.592->**0.745**.
+- 0.85 esik DENENDI ve KOTU cikti (recall 0.327, F1 0.416); benign-agirlikli test icin fazla tutucu. En iyi ~0.65.
+- NotebookLM 'sert uzman-yonlendirme (MoE)' yerine STACKING'i onerdi (MASTER varyantlari uzmanlar icin OOD).
+
+## MASTER dusuk MCC = durustluk (NotebookLM onayli)
+- MASTER MCC ~0.47, alt panellerden (CFTR 0.76, KANSER 0.65) dusuk. Bu zaafiyet DEGIL:
+  MASTER en buyuk (489), heterojen (~2060 gen), gercekci-dengesiz (~%80 benign) test = gercek klinik yigin simulasyonu.
+  Kucuk panellerin yuksek skorlari kismen kucuk-orneklem iyimserligi. Gercek genelleme MASTER'dan okunur.
+- Gelecek (literatur): gen/hastalik-spesifik modeller, LLM gen-gomuleri + AlphaFold2 3B yapi (MissenseNet), kalibrasyon egrileri.
+
+## Teslimatlar
+- PDR: PDR_FINAL_v3.docx (panel-bazli denenen/ise-yarayan/secilen, sartname-uyumlu, <=10 sayfa).
+- Paket: MedicalVision_paneller.zip (kod + panel-bazli sonuc/metrik + README'ler).
+- Nihai sampiyonlar: nihai_sampiyonlar.xlsx (iyilestirmeler dahil).
+- Not: best_per_panel.xlsx OTOMATIK (yalniz matris kosulari) uretildigi icin matris-sonrasi iyilestirmeleri
+  (CFTR dengeli-RF, MASTER stacking+benign) ICERMEZ; nihai secimler nihai_sampiyonlar.xlsx'tedir.

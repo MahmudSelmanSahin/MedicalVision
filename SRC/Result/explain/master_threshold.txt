@@ -1,0 +1,5 @@
+MASTER (stacking+benign) | test 391 benign / 98 patojenik | cv_auc(temiz)=0.8538
+opt=macro_f1 prior=ON  thr=0.76 prec=0.526 rec=0.622 f1=0.570 macro_f1=0.725 mcc=0.453
+opt=macro_f1 prior=OFF thr=0.34 prec=0.376 rec=0.969 f1=0.541 macro_f1=0.642 mcc=0.453
+opt=f1       prior=ON  thr=0.65 prec=0.477 rec=0.745 f1=0.582 macro_f1=0.719 mcc=0.467
+opt=f1       prior=OFF thr=0.27 prec=0.324 rec=0.969 f1=0.486 macro_f1=0.572 mcc=0.378

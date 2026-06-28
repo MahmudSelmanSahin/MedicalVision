@@ -1,0 +1,5 @@
+PAH test: 31 benign / 8 pathogenic
+opt=macro_f1 prior=ON  thr=0.85 prec=0.417 rec=0.625 f1=0.500 macro_f1=0.664 mcc=0.349
+opt=macro_f1 prior=OFF thr=0.62 prec=0.320 rec=1.000 f1=0.485 macro_f1=0.553 mcc=0.380
+opt=f1       prior=ON  thr=0.85 prec=0.417 rec=0.625 f1=0.500 macro_f1=0.664 mcc=0.349
+opt=f1       prior=OFF thr=0.62 prec=0.320 rec=1.000 f1=0.485 macro_f1=0.553 mcc=0.380

@@ -1,0 +1,11 @@
+=== MASTER STACKING (uzman olasiliklari -> meta ozellik) ===
+Uzman ciktilari uretiliyor (original, leak-free)...
+  uzman CFTR: catboost/ek-standard_median (original) -> MASTER tahmin edildi
+  uzman CFTR: catboost/ek-standard_median (original) -> MASTER tahmin edildi
+  uzman KANSER: logreg/ek-standard_nan (original) -> MASTER tahmin edildi
+  uzman KANSER: logreg/ek-standard_nan (original) -> MASTER tahmin edildi
+  uzman PAH: random_forest/ek-standard_median (original) -> MASTER tahmin edildi
+  uzman PAH: random_forest/ek-standard_median (original) -> MASTER tahmin edildi
+
+BASELINE (uzmansiz)        : cv_auc=0.8459 thr=0.75 prec=0.537 rec=0.592 f1=0.563 macro_f1=0.723 mcc=0.448
+STACKING (+3 uzman ozelligi): cv_auc=0.8477 thr=0.69 prec=0.486 rec=0.704 f1=0.575 macro_f1=0.718 mcc=0.456
