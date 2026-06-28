@@ -1,55 +1,30 @@
-# MedicalVision / SYZ2026 — Model Sonuc Listesi (panel basina secim icin)
+# MedicalVision / SYZ2026 — Model Sonuç Listesi (GÜNCEL)
 
-## Metodoloji (onemli)
-- Model SECIMI sizintisiz capraz-dogrulama (cv_mcc_mean = Repeated Stratified 5-fold CV uzerinde MCC) ile yapilir; dondurulmus TEST seti yalnizca nihai raporlama icindir.
-- cv_mcc_mean ~ test macro_f1 korelasyonu 0.74 (catboost altkumesinde); yani CV guvenilir bir gosterge.
-- Test setleri: CFTR=22 (DENGELI 11/11), KANSER=75 (~%80 benign), PAH=39 (~%80 benign), MASTER=489 (~%80 benign).
-- UYARI: yuksek TEST skoru + dusuk CV skoru = kucuk test setinde sansli bolunme (lucky split), klinik olarak guvenilmez.
+> Bu belge güncellendi. Eski `cv_mcc_mean` sıralaması terk edildi; nihai seçim **sızıntısız cv_auc**
+> (eşikten bağımsız) + **cv_pr_auc** tie-break ile, karar eşiği **F1-önceliği** ile yapılır.
+> Tam tablo: `nihai_sampiyonlar.xlsx` · cv_auc referansı: `best_per_panel.xlsx` · gerekçeler: `SUREC_VE_KARARLAR.md`.
 
-## CFTR paneli — en iyi 6 aday (cv_mcc_mean sirali)
-model | data_aug | senaryo | cv_mcc_mean(LEAK-FREE) | test_macro_f1 | test_mcc | test_auc
----|---|---|---|---|---|---
-extra_trees | transfer_learning | ek-standard_nan | 0.776 | 0.812 | 0.683 | 0.905
-extra_trees | transfer_learning | ek-standard_median | 0.776 | 0.812 | 0.683 | 0.905
-xgboost | transfer_learning | ek-standard_median | 0.770 | 0.646 | 0.471 | 0.777
-xgboost | transfer_learning | ek-standard_nan | 0.770 | 0.646 | 0.471 | 0.777
-xgboost | transfer_learning | ek-standard_nan | 0.742 | 0.760 | 0.612 | 0.806
-xgboost | transfer_learning | ek-standard_median | 0.742 | 0.760 | 0.612 | 0.806
+## Metodoloji (güncel)
+- **Model seçimi:** sızıntısız ROC-AUC (cv_auc, Repeated Stratified 5×2 CV) — eşikten bağımsız; yakın adaylar cv_pr_auc ile ayrılır. Dondurulmuş TEST yalnız raporlama içindir.
+- **Karar eşiği:** şartname metriği F1 olduğundan F1-farkında; OOF'ta seçilip test'e değiştirilmeden uygulanır (panel-bazlı operasyon noktası).
+- **Test setleri:** CFTR=22 (dengeli 11/11), KANSER=75, PAH=39, MASTER=489 (~%80 benign).
+- **Uyarı:** yüksek TEST + düşük cv_auc = küçük sette şanslı bölünme (selection-bias); seçimde kullanılmaz.
 
-## KANSER paneli — en iyi 6 aday (cv_mcc_mean sirali)
-model | data_aug | senaryo | cv_mcc_mean(LEAK-FREE) | test_macro_f1 | test_mcc | test_auc
----|---|---|---|---|---|---
-xgboost | transfer_learning | ek-standard_median | 0.793 | 0.755 | 0.579 | 0.913
-xgboost | transfer_learning | ek-standard_nan | 0.792 | 0.694 | 0.497 | 0.918
-adaboost | transfer_learning | ek-standard_nan | 0.786 | 0.724 | 0.564 | 0.896
-adaboost | transfer_learning | ek-standard_nan | 0.786 | 0.724 | 0.564 | 0.896
-adaboost | transfer_learning | ek-standard_median | 0.786 | 0.724 | 0.564 | 0.896
-adaboost | transfer_learning | ek-standard_median | 0.786 | 0.724 | 0.564 | 0.896
+## NİHAİ ŞAMPİYONLAR (cv_auc + benimsenen iyileştirmeler, F1-önceliği)
 
-## PAH paneli — en iyi 6 aday (cv_mcc_mean sirali)
-model | data_aug | senaryo | cv_mcc_mean(LEAK-FREE) | test_macro_f1 | test_mcc | test_auc
----|---|---|---|---|---|---
-catboost | clustering | ek-standard_nan | 0.461 | 0.567 | 0.319 | 0.746
-catboost | clustering | ek-standard_nan | 0.448 | 0.632 | 0.394 | 0.754
-catboost | clustering | ek-standard_median | 0.439 | 0.567 | 0.319 | 0.766
-catboost | clustering | ek-standard_median | 0.439 | 0.567 | 0.319 | 0.766
-catboost | clustering | ek-standard_median | 0.439 | 0.567 | 0.319 | 0.766
-catboost | transfer_learning | ek-standard_median | 0.427 | 0.545 | 0.295 | 0.677
+| Panel | Model / Müdahale | Ablasyon | Eşik | F1 | MCC | recall | cv_auc |
+|-------|------------------|----------|------|-----|-----|--------|--------|
+| **CFTR** | RandomForest / original | feature_selection | 0.88 | 0.880 | 0.756 | 1.00 | 0.916 |
+| **KANSER** | CatBoost / clustering | smote | 0.80 | 0.722 | 0.653 | 0.867 | 0.904 |
+| **PAH** | Extra Trees / clustering (düşük eşik) | class_weight | 0.62 | 0.485 | 0.380 | 1.00 | 0.839 |
+| **MASTER** | CatBoost / +çapraz-benign +uzman-stacking +F1-eşik | class_weight | 0.65 | 0.582 | 0.467 | 0.745 | 0.854 |
 
-## MASTER paneli — en iyi 6 aday (cv_mcc_mean sirali)
-model | data_aug | senaryo | cv_mcc_mean(LEAK-FREE) | test_macro_f1 | test_mcc | test_auc
----|---|---|---|---|---|---
-catboost | clustering | ek-standard_median | 0.485 | 0.732 | 0.471 | 0.851
-catboost | original | ek-standard_median | 0.485 | 0.732 | 0.471 | 0.851
-catboost | original | ek-standard_nan | 0.477 | 0.709 | 0.418 | 0.851
-catboost | clustering | ek-standard_nan | 0.477 | 0.709 | 0.418 | 0.851
-catboost | original | ek-standard_median | 0.475 | 0.698 | 0.395 | 0.832
-catboost | clustering | ek-standard_median | 0.475 | 0.698 | 0.395 | 0.832
+## Saf cv_auc liderleri (REFERANS — best_per_panel.xlsx)
+- CFTR: CatBoost/clustering (cv_auc 0.994, F1 0.815) — en yüksek ayırt-edicilik; ama F1 düşük → nihai RF/original seçildi.
+- KANSER: CatBoost/clustering/smote (cv_auc 0.904) = nihai ile aynı.
+- MASTER: CatBoost/original (cv_auc 0.846) — nihai stacking+benign ile geçildi.
+- PAH: Extra Trees/clustering (cv_auc 0.839) = nihai ile aynı (eşik düşürüldü).
 
-## Ensemble (top-3 soft voting + stacking) vs tek-en-iyi model
-panel | birlestirilen | voting_mcc | stack_mcc | tek_en_iyi_mcc | voting_macro_f1 | tek_en_iyi_macro_f1
----|---|---|---|---|---|---
-CFTR | extra_trees;xgboost;logreg | 0.542 | 0.542 | 0.683 | 0.705 | 0.812
-KANSER | xgboost;adaboost;lightgbm | 0.512 | 0.497 | 0.579 | 0.706 | 0.755
-MASTER | catboost;random_forest;lightgbm | 0.446 | 0.454 | 0.471 | 0.721 | 0.732
-PAH | catboost;extra_trees;xgboost | 0.368 | 0.343 | 0.319 | 0.610 | 0.567
+## Ensemble durumu
+- Panel-içi top-3 voting/stacking DENENDİ ama tek-en-iyi modeli **geçemedi** (hatalar korele) → tek model kullanıldı.
+- **MASTER'da uzman-stacking** (alt-panel olasılıkları → meta-özellik, REVEL tarzı, leak-free) **benimsendi** (F1 0.563→0.582).
