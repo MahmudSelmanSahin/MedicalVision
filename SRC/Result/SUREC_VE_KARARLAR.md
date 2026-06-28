@@ -111,8 +111,10 @@ PAH en zayıf panel (AUC 0.786). Genişletilmiş augmentation (synthetic, cluste
 
 ---
 
-## 11. Nihai 4 şampiyon — neyi neden seçtik
+## 11. İlk seçim: cv_auc liderleri (matris) — REFERANS
 Seçim: **sızıntısız cv_auc** (eşikten bağımsız) + marj içinde **cv_pr_auc** tie-break. Test metrikleri yalnız raporlama.
+
+> ⚠️ **DİKKAT:** Aşağıdaki tablo matris-içi **saf cv_auc liderleridir (ilk seçim)** — burada CFTR=CatBoost. Şartname **F1-önceliği** ve matris-sonrası iyileştirmelerle **NİHAİ seçimler değişti** (örn. CFTR → **RandomForest/original**, F1 0.880). Nihai tablo için bkz. belge sonundaki **"NİHAİ KARARLAR"** bölümü ve **`nihai_sampiyonlar.xlsx`**.
 
 | Panel | Model | Augmentation | cv_auc | cv_pr_auc | test macro_f1 | test F1 | test MCC | test AUC |
 |-------|-------|--------------|--------|-----------|---------------|---------|----------|----------|
